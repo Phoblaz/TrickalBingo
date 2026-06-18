@@ -52,23 +52,23 @@
 <body class="text-slate-800 lg:h-screen lg:overflow-hidden flex flex-col selection:bg-emerald-200">
 
     <!-- Top Navigation Bar -->
-    <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-3 sm:p-4 shadow-md shrink-0 z-10">
+    <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-2 sm:p-3 shadow-md shrink-0 z-10">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-[#dcfd8b] text-[#4a7c59] w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                <div class="bg-[#dcfd8b] text-[#4a7c59] w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-lg sm:text-xl shadow-inner">
                     <i class="fa-solid fa-dice"></i>
                 </div>
                 <div>
-                    <h1 class="font-header text-lg sm:text-xl font-bold leading-tight">Bingo Solver Pro</h1>
-                    <p class="text-[10px] text-emerald-100/80">Monte Carlo Simulation Engine</p>
+                    <h1 class="font-header text-base sm:text-lg font-bold leading-tight">Bingo Solver Pro</h1>
+                    <p class="text-[9px] sm:text-[10px] text-emerald-100/80">Monte Carlo Simulation Engine</p>
                 </div>
             </div>
             <!-- Mode Switcher -->
             <div class="flex gap-1.5 sm:gap-2 bg-black/20 p-1 rounded-xl">
-                <button id="mode-play" onclick="setMode('play')" class="px-3 sm:px-4 py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-xs sm:text-sm font-bold transition-all shadow-sm">
+                <button id="mode-play" onclick="setMode('play')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-[10px] sm:text-xs font-bold transition-all shadow-sm">
                     <i class="fa-solid fa-gamepad mr-1"></i> Play
                 </button>
-                <button id="mode-setup" onclick="setMode('setup')" class="px-3 sm:px-4 py-1.5 rounded-lg text-emerald-100 hover:text-white text-xs sm:text-sm font-semibold transition-all">
+                <button id="mode-setup" onclick="setMode('setup')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-emerald-100 hover:text-white text-[10px] sm:text-xs font-semibold transition-all">
                     <i class="fa-solid fa-wrench mr-1"></i> Setup
                 </button>
             </div>
@@ -76,47 +76,38 @@
     </header>
 
     <!-- Main Workspace -->
-    <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-6 min-h-0">
-        <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6">
+    <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-4 min-h-0 overflow-hidden">
+        <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 overflow-hidden">
             
             <!-- ======================= -->
-            <!-- PANEL 1: Info & Queue   -->
+            <!-- PANEL 1: Info & Selection -->
             <!-- (Mobile: Order 3 / PC: Order 1) -->
             <!-- ======================= -->
-            <section class="order-3 lg:order-1 lg:col-span-3 flex flex-col gap-4 lg:h-full lg:overflow-y-auto pb-4 lg:pr-2">
+            <section class="order-3 lg:order-1 lg:col-span-3 flex flex-col gap-3 lg:h-full lg:overflow-y-auto pb-2 lg:pb-0 lg:pr-1">
                 
                 <!-- Ticket Stats -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex justify-between items-center shrink-0">
+                <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex justify-between items-center shrink-0">
                     <div>
-                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Tickets Used</span>
-                        <span id="ticket-count" class="text-3xl font-header font-bold text-[#4a7c59]">0</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Tickets Used</span>
+                        <span id="ticket-count" class="text-2xl font-header font-bold text-[#4a7c59]">0</span>
                     </div>
-                    <div class="bg-amber-50 text-amber-500 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                    <div class="bg-amber-50 text-amber-500 w-10 h-10 rounded-full flex items-center justify-center text-lg">
                         <i class="fa-solid fa-ticket"></i>
                     </div>
                 </div>
 
-                <!-- Patterns Queue -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex-1 min-h-[250px] flex flex-col overflow-hidden">
-                    <div class="bg-slate-50 p-3 border-b border-slate-100 flex justify-between items-center">
-                        <h3 class="text-xs font-bold text-slate-600 uppercase">
-                            <i class="fa-solid fa-list-ol mr-1"></i> Upcoming Queue
+                <!-- Manual Selection Panel -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-[250px]">
+                    <div class="bg-slate-50 p-2 border-b border-slate-100 shrink-0">
+                        <h3 class="text-[11px] font-bold text-slate-600 uppercase">
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> Manual Selection
                         </h3>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="auto-cycle-toggle" class="sr-only peer" onchange="toggleAutoCycle(this.checked)">
-                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                            <span class="ml-2 text-[10px] font-bold text-slate-500">Auto Queue</span>
-                        </label>
                     </div>
-                    
-                    <div class="p-3 flex-1 overflow-y-auto" id="queue-container">
-                        <!-- Injected by JS -->
-                    </div>
-
-                    <div class="p-3 border-t border-slate-100 bg-slate-50/50">
-                        <button onclick="randomizeQueue()" class="w-full py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-xl transition-all shadow-sm">
-                            <i class="fa-solid fa-shuffle text-emerald-500 mr-1"></i> Randomize Queue
-                        </button>
+                    <div class="p-3 flex-1 overflow-y-auto flex flex-col gap-2">
+                        <p class="text-[9px] text-slate-500 font-semibold">Select the pattern you have in your hand.</p>
+                        <div class="grid grid-cols-2 lg:grid-cols-1 gap-1.5" id="pattern-palette">
+                            <!-- Injected by JS -->
+                        </div>
                     </div>
                 </div>
             </section>
@@ -125,85 +116,89 @@
             <!-- PANEL 2: Game Board     -->
             <!-- (Mobile: Order 1 / PC: Order 2) -->
             <!-- ======================= -->
-            <section class="order-1 lg:order-2 lg:col-span-5 flex flex-col gap-4 lg:h-full lg:overflow-y-auto pb-4 lg:pr-2">
+            <!-- Changed gap to gap-2 and overflow-hidden to ensure it fits -->
+            <section class="order-1 lg:order-2 lg:col-span-5 flex flex-col gap-2 h-full overflow-hidden pb-1 lg:pr-1 relative">
                 
                 <!-- Board Completeness Bar -->
-                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner shrink-0">
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner shrink-0">
                     <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-[#4a7c59] h-full transition-all duration-500 w-0"></div>
                 </div>
-                <div class="text-center mt(-2) text-[10px] font-bold text-slate-500 shrink-0" id="progress-text">Progress 0% (0/49)</div>
-
-                <!-- Manual Selection Panel -->
-                <div id="manual-palette-panel" class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-col gap-2 shrink-0">
-                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-hand-pointer mr-1"></i> Manual Selection</h3>
-                    <div class="grid grid-cols-5 gap-1.5" id="pattern-palette">
-                        <!-- Injected by JS -->
-                    </div>
-                </div>
+                <div class="text-center text-[9px] font-bold text-slate-500 shrink-0" id="progress-text">Progress 0% (0/49)</div>
 
                 <!-- Active / Storage Panel -->
-                <div class="flex justify-between items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-100 shrink-0">
+                <!-- Reduced padding to save vertical space -->
+                <div class="flex justify-between items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100 shrink-0">
                     <!-- Active -->
-                    <div class="flex-1 flex flex-col items-center p-2 bg-emerald-50/50 rounded-xl border border-emerald-100">
-                        <span class="text-[10px] uppercase font-bold text-emerald-600 mb-1">Active Slot</span>
-                        <div id="active-preview" class="w-14 h-14 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100"></div>
+                    <div class="flex-1 flex flex-col items-center p-1.5 bg-emerald-50/50 rounded-lg border border-emerald-100">
+                        <span class="text-[9px] uppercase font-bold text-emerald-600 mb-0.5">Active Slot</span>
+                        <div id="active-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                     
                     <!-- Swap Button -->
-                    <button onclick="swapSlots()" class="w-12 h-12 shrink-0 bg-[#dcfd8b] hover:bg-[#cbe67c] active:scale-90 rounded-full flex items-center justify-center text-[#4a7c59] shadow-md transition-all text-lg">
+                    <button onclick="swapSlots()" class="w-10 h-10 shrink-0 bg-[#dcfd8b] hover:bg-[#cbe67c] active:scale-90 rounded-full flex items-center justify-center text-[#4a7c59] shadow-md transition-all text-base">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
 
                     <!-- Storage -->
-                    <div class="flex-1 flex flex-col items-center p-2 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 mb-1">Storage Slot</span>
-                        <div id="storage-preview" class="w-14 h-14 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100"></div>
+                    <div class="flex-1 flex flex-col items-center p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-[9px] uppercase font-bold text-slate-500 mb-0.5">Storage Slot</span>
+                        <div id="storage-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                 </div>
 
                 <!-- 7x7 Interactive Board -->
-                <div class="bg-white p-2 sm:p-4 rounded-3xl shadow-sm border border-slate-100 w-full max-w-[500px] mx-auto flex flex-col select-none shrink-0">
+                <!-- Use flex-1 and min-h-0 to make the board container flex dynamically -->
+                <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-slate-100 w-full mx-auto flex flex-col select-none flex-1 min-h-0 justify-center items-center overflow-hidden">
                     
-                    <!-- Header A-G -->
-                    <div class="flex w-full mb-1">
-                        <div class="w-5 sm:w-6 shrink-0"></div>
-                        <div class="grid grid-cols-7 flex-1 text-center text-[10px] sm:text-xs font-bold text-slate-400">
-                            <div>A</div><div>B</div><div>C</div><div>D</div><div>E</div><div>F</div><div>G</div>
+                    <div class="w-full max-w-[420px] mx-auto h-full flex flex-col">
+                        <!-- Header A-G -->
+                        <div class="flex w-full mb-0.5 shrink-0">
+                            <div class="w-4 sm:w-5 shrink-0"></div>
+                            <div class="grid grid-cols-7 flex-1 text-center text-[9px] sm:text-[10px] font-bold text-slate-400">
+                                <div>A</div><div>B</div><div>C</div><div>D</div><div>E</div><div>F</div><div>G</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="flex w-full aspect-square gap-1">
-                        <!-- Header 1-7 -->
-                        <div class="grid grid-rows-7 w-5 sm:w-6 shrink-0 text-center text-[10px] sm:text-xs font-bold text-slate-400">
-                            <div class="flex items-center justify-center">1</div>
-                            <div class="flex items-center justify-center">2</div>
-                            <div class="flex items-center justify-center">3</div>
-                            <div class="flex items-center justify-center">4</div>
-                            <div class="flex items-center justify-center">5</div>
-                            <div class="flex items-center justify-center">6</div>
-                            <div class="flex items-center justify-center">7</div>
-                        </div>
-                        
-                        <!-- Grid Cells -->
-                        <div id="grid-container" class="grid grid-cols-7 grid-rows-7 gap-1 flex-1 relative">
-                            <!-- Injected by JS -->
+                        <!-- Use min-h-0 and flex-1 so the aspect-square scales properly -->
+                        <div class="flex w-full flex-1 min-h-0 justify-center items-center">
+                            <!-- Ensure the grid maintains aspect ratio but doesn't exceed container -->
+                            <div class="flex w-full max-h-full aspect-square gap-0.5">
+                                <!-- Header 1-7 -->
+                                <div class="grid grid-rows-7 w-4 sm:w-5 shrink-0 text-center text-[9px] sm:text-[10px] font-bold text-slate-400">
+                                    <div class="flex items-center justify-center">1</div>
+                                    <div class="flex items-center justify-center">2</div>
+                                    <div class="flex items-center justify-center">3</div>
+                                    <div class="flex items-center justify-center">4</div>
+                                    <div class="flex items-center justify-center">5</div>
+                                    <div class="flex items-center justify-center">6</div>
+                                    <div class="flex items-center justify-center">7</div>
+                                </div>
+                                
+                                <!-- Grid Cells -->
+                                <div id="grid-container" class="grid grid-cols-7 grid-rows-7 gap-0.5 sm:gap-1 flex-1 h-full">
+                                    <!-- Injected by JS -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Double Tap Hint -->
-                <div class="text-center text-[10px] sm:text-xs text-amber-600 font-bold shrink-0">
-                    <i class="fa-solid fa-lightbulb"></i> Tap twice to confirm placement
-                </div>
+                <!-- Action Controls & Hint -->
+                <div class="shrink-0 flex flex-col gap-2 mt-1">
+                    <!-- Double Tap Hint -->
+                    <div class="text-center text-[9px] sm:text-[10px] text-amber-600 font-bold w-full">
+                        <i class="fa-solid fa-lightbulb"></i> Tap twice to confirm placement
+                    </div>
 
-                <!-- Action Controls (Undo / Reset) -->
-                <div class="flex justify-center gap-4 shrink-0 pb-2 mt-2">
-                    <button id="btn-undo" onclick="undoMove()" disabled class="px-5 py-2.5 bg-white text-slate-600 font-bold text-sm rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                        <i class="fa-solid fa-clock-rotate-left mr-1"></i> Undo
-                    </button>
-                    <button onclick="resetBoard()" class="px-5 py-2.5 bg-rose-50 text-rose-600 font-bold text-sm rounded-xl border border-rose-100 shadow-sm hover:bg-rose-100 transition-all">
-                        <i class="fa-solid fa-trash-can mr-1"></i> Clear Board
-                    </button>
+                    <!-- Undo / Reset -->
+                    <div class="flex justify-center gap-3">
+                        <button id="btn-undo" onclick="undoMove()" disabled class="px-4 py-2 bg-white text-slate-600 font-bold text-[10px] sm:text-xs rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                            <i class="fa-solid fa-clock-rotate-left mr-1"></i> Undo
+                        </button>
+                        <button onclick="resetBoard()" class="px-4 py-2 bg-rose-50 text-rose-600 font-bold text-[10px] sm:text-xs rounded-lg border border-rose-100 shadow-sm hover:bg-rose-100 transition-all">
+                            <i class="fa-solid fa-trash-can mr-1"></i> Clear Board
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -211,20 +206,20 @@
             <!-- PANEL 3: AI Simulator   -->
             <!-- (Mobile: Order 2 / PC: Order 3) -->
             <!-- ======================= -->
-            <section class="order-2 lg:order-3 lg:col-span-4 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-2">
-                <div class="bg-sky-50 rounded-3xl p-5 border-2 border-sky-100 flex flex-col h-full shadow-sm">
+            <section class="order-2 lg:order-3 lg:col-span-4 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-1">
+                <div class="bg-sky-50 rounded-2xl p-4 border-2 border-sky-100 flex flex-col h-full shadow-sm min-h-[300px]">
                     
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex justify-between items-start mb-3 shrink-0">
                         <div>
-                            <h2 class="font-header text-lg font-bold text-sky-800 flex items-center gap-2">
+                            <h2 class="font-header text-base font-bold text-sky-800 flex items-center gap-1.5">
                                 <i class="fa-solid fa-robot text-sky-500"></i> AI Monte Carlo
                             </h2>
-                            <p class="text-[10px] text-sky-600/80 mt-1">Analyzing probabilities from 10,000+ simulations (Background Worker)</p>
+                            <p class="text-[9px] text-sky-600/80 mt-0.5">Analyzing probabilities from 10,000+ simulations</p>
                         </div>
                     </div>
 
                     <!-- AI Compute Button -->
-                    <button id="btn-ai-calc" onclick="runAISimulation()" class="w-full py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group shrink-0">
+                    <button id="btn-ai-calc" onclick="runAISimulation()" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group shrink-0">
                         <span id="ai-btn-content" class="flex items-center gap-2">
                             <i class="fa-solid fa-bolt"></i> Calculate Best Placement
                         </span>
@@ -234,41 +229,41 @@
                     </button>
 
                     <!-- AI Results Output -->
-                    <div id="ai-results" class="mt-4 flex-1 flex flex-col gap-3 min-h-[200px] overflow-y-auto pr-2 hidden">
+                    <div id="ai-results" class="mt-3 flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pr-1 hidden">
                         <!-- Top Choice -->
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-200 relative overflow-hidden shrink-0">
-                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                        <div class="bg-white p-3 rounded-xl shadow-sm border border-emerald-200 relative overflow-hidden shrink-0">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-lg">
                                 <i class="fa-solid fa-star text-amber-300"></i> Top Pick
                             </div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">First Step</div>
-                            <div id="ai-top-action" class="font-bold text-lg text-slate-800 leading-tight">
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">First Step</div>
+                            <div id="ai-top-action" class="font-bold text-sm sm:text-base text-slate-800 leading-tight">
                                 <!-- Text -->
                             </div>
-                            <div class="mt-2 flex justify-between items-end">
-                                <div class="text-sm text-slate-600">Coord: <span id="ai-top-coord" class="font-bold text-emerald-600">--</span></div>
+                            <div class="mt-1.5 flex justify-between items-end">
+                                <div class="text-[10px] sm:text-xs text-slate-600">Coord: <span id="ai-top-coord" class="font-bold text-emerald-600">--</span></div>
                                 <div class="text-right">
-                                    <div class="text-[10px] text-slate-400">Win Rate</div>
-                                    <div id="ai-top-winrate" class="font-bold text-emerald-500">--%</div>
+                                    <div class="text-[9px] text-slate-400">Win Rate</div>
+                                    <div id="ai-top-winrate" class="font-bold text-emerald-500 text-xs sm:text-sm">--%</div>
                                 </div>
                             </div>
-                            <button id="btn-apply-ai" class="mt-3 w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition-all border border-emerald-200">
+                            <button id="btn-apply-ai" class="mt-2 w-full py-1.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] sm:text-xs font-bold rounded-lg transition-all border border-emerald-200">
                                 Apply Suggestion
                             </button>
                         </div>
 
                         <!-- Alternative Choices List -->
-                        <div class="shrink-0">
-                            <span class="text-[10px] font-bold text-sky-700/70 uppercase px-1">Alternatives</span>
-                            <div id="ai-alt-list" class="mt-1 flex flex-col gap-2">
+                        <div class="shrink-0 flex flex-col min-h-0">
+                            <span class="text-[9px] font-bold text-sky-700/70 uppercase px-1 mb-1">Alternatives</span>
+                            <div id="ai-alt-list" class="flex flex-col gap-1.5 overflow-y-auto">
                                 <!-- Injected by JS -->
                             </div>
                         </div>
                     </div>
                     
                     <!-- AI Idle State -->
-                    <div id="ai-idle" class="mt-4 flex-1 flex flex-col items-center justify-center text-sky-700/40 text-center min-h-[150px]">
-                        <i class="fa-solid fa-network-wired text-4xl mb-3"></i>
-                        <p class="text-sm font-semibold">Click calculate to start<br>Monte Carlo simulation</p>
+                    <div id="ai-idle" class="mt-3 flex-1 flex flex-col items-center justify-center text-sky-700/40 text-center min-h-[100px]">
+                        <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
+                        <p class="text-[10px] sm:text-xs font-semibold">Click calculate to start<br>Monte Carlo simulation</p>
                     </div>
 
                 </div>
@@ -315,7 +310,7 @@
             }
 
             self.onmessage = function(e) {
-                const { grid, activeKey, storageKey, queue, iterations } = e.data;
+                const { grid, activeKey, storageKey, iterations } = e.data;
                 const baseGrid = new Uint8Array(grid);
                 
                 const moveOptions = [];
@@ -348,12 +343,7 @@
                             const maxSimMoves = 8;
 
                             while (currentFlipped < 49 && simMoves < maxSimMoves) {
-                                let nextPattern = '';
-                                if (simMoves < queue.length) {
-                                    nextPattern = queue[simMoves];
-                                } else {
-                                    nextPattern = PATTERNS_KEYS[Math.floor(Math.random() * PATTERNS_KEYS.length)];
-                                }
+                                let nextPattern = PATTERNS_KEYS[Math.floor(Math.random() * PATTERNS_KEYS.length)];
                                 
                                 const randIdx = Math.floor(Math.random() * 49);
                                 const res = applyPattern(simGrid, nextPattern, randIdx);
@@ -411,26 +401,24 @@
         let history = [];
         let tickets = 0;
         let mode = 'play'; // 'play' | 'setup'
-        let autoCycle = false;
 
         let activeKey = '';
         let storageKey = '';
-        let queue = [];
         let hoveredIdx = -1;
         let stagedIdx = -1; // Track first tap for double-tap confirmation
 
         let aiRecommendedMoves = [];
 
         const gridContainer = document.getElementById('grid-container');
-        const queueContainer = document.getElementById('queue-container');
 
         function init() {
             createBoard();
             
-            document.getElementById('auto-cycle-toggle').checked = autoCycle;
-            document.getElementById('manual-palette-panel').style.display = autoCycle ? 'none' : 'flex';
+            // Randomly select starting active key
+            activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             
-            randomizeQueue();
+            updateUI();
+            runAISimulation(true);
 
             aiWorker.onmessage = (e) => {
                 const { results } = e.data;
@@ -444,7 +432,7 @@
             gridContainer.innerHTML = '';
             for (let i = 0; i < 49; i++) {
                 const btn = document.createElement('button');
-                btn.className = 'w-full h-full rounded-md sm:rounded-lg border-2 transition-all duration-200 flex items-center justify-center relative';
+                btn.className = 'w-full h-full rounded sm:rounded-md border-2 transition-all duration-200 flex items-center justify-center relative';
                 btn.dataset.idx = i;
                 
                 btn.onmouseenter = () => handleHover(i);
@@ -455,39 +443,20 @@
             }
         }
 
-        function randomizeQueue() {
-            queue = Array.from({length: 6}, () => PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)]);
-            stagedIdx = -1;
-            if (!activeKey || autoCycle) activeKey = queue.shift();
-            clearAI();
-            updateUI();
-            runAISimulation(true);
-        }
-
         function setMode(m) {
             mode = m;
             stagedIdx = -1;
-            document.getElementById('mode-play').className = `px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${m === 'play' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
-            document.getElementById('mode-setup').className = `px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${m === 'setup' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
+            document.getElementById('mode-play').className = `px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${m === 'play' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
+            document.getElementById('mode-setup').className = `px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${m === 'setup' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
             handleHover(-1);
             clearAI();
             renderBoard();
-        }
-
-        function toggleAutoCycle(checked) {
-            autoCycle = checked;
-            stagedIdx = -1;
-            document.getElementById('manual-palette-panel').style.display = checked ? 'none' : 'flex';
-            if(checked && !activeKey && queue.length > 0) activeKey = queue.shift();
-            updateUI();
-            runAISimulation(true);
         }
 
         function swapSlots() {
             saveState();
             stagedIdx = -1;
             [activeKey, storageKey] = [storageKey, activeKey];
-            if (!activeKey && autoCycle) activeKey = queue.shift();
             clearAI();
             updateUI();
             runAISimulation(true);
@@ -497,8 +466,7 @@
             history.push({
                 grid: new Uint8Array(grid),
                 tickets,
-                activeKey, storageKey,
-                queue: [...queue]
+                activeKey, storageKey
             });
             document.getElementById('btn-undo').disabled = false;
         }
@@ -507,7 +475,7 @@
             if (history.length === 0) return;
             const h = history.pop();
             grid = h.grid; tickets = h.tickets;
-            activeKey = h.activeKey; storageKey = h.storageKey; queue = h.queue;
+            activeKey = h.activeKey; storageKey = h.storageKey;
             stagedIdx = -1;
             document.getElementById('btn-undo').disabled = history.length === 0;
             clearAI();
@@ -522,8 +490,11 @@
             tickets = 0;
             storageKey = '';
             stagedIdx = -1;
+            activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             document.getElementById('btn-undo').disabled = true;
-            randomizeQueue();
+            clearAI();
+            updateUI();
+            runAISimulation(true);
         }
 
         function handleClick(idx) {
@@ -553,10 +524,8 @@
             tickets++;
             stagedIdx = -1; // Reset staged state
             
-            if (autoCycle) {
-                activeKey = queue.shift();
-                queue.push(PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)]);
-            }
+            // Randomly select next pattern
+            activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             
             clearAI();
             updateUI();
@@ -585,7 +554,6 @@
             document.getElementById('ticket-count').innerText = tickets;
             renderPreview('active-preview', activeKey);
             renderPreview('storage-preview', storageKey);
-            renderQueue();
             renderPalette();
             renderBoard();
             
@@ -598,7 +566,7 @@
 
         function renderPreview(containerId, key) {
             const el = document.getElementById(containerId);
-            if (!key) { el.innerHTML = '<span class="text-slate-300 text-[10px]">Empty</span>'; return; }
+            if (!key) { el.innerHTML = '<span class="text-slate-300 text-[8px]">Empty</span>'; return; }
             
             const p = PATTERNS[key];
             const offsets = {
@@ -609,7 +577,7 @@
                 BLOCK_3X3:  [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
             }[key];
 
-            let html = '<div class="grid grid-cols-7 gap-[1px] p-0.5 w-10 h-10">';
+            let html = '<div class="grid grid-cols-7 gap-[1px] p-[1px] w-8 h-8">';
             for(let r=-3; r<=3; r++){
                 for(let c=-3; c<=3; c++){
                     const isSet = offsets.some(o => o[0]===r && o[1]===c);
@@ -620,20 +588,6 @@
             el.innerHTML = html;
         }
 
-        function renderQueue() {
-            queueContainer.innerHTML = '';
-            queue.forEach((key, i) => {
-                const p = PATTERNS[key];
-                queueContainer.innerHTML += `
-                    <div class="flex items-center gap-2 p-2 mb-1.5 bg-white rounded-lg border border-slate-100 shadow-sm text-xs">
-                        <div class="w-4 h-4 rounded bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</div>
-                        <div class="w-3 h-3 rounded-sm ${p.color}"></div>
-                        <span class="font-bold text-slate-600">${p.name}</span>
-                    </div>
-                `;
-            });
-        }
-
         function renderPalette() {
             const pnl = document.getElementById('pattern-palette');
             pnl.innerHTML = '';
@@ -641,11 +595,11 @@
                 const p = PATTERNS[k];
                 const active = (activeKey === k);
                 const btn = document.createElement('button');
-                btn.className = `p-1.5 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${active ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}`;
+                btn.className = `p-1.5 sm:p-2 rounded-xl border-2 flex lg:flex-row flex-col items-center gap-1 sm:gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
                 btn.onclick = () => { activeKey = k; stagedIdx = -1; clearAI(); updateUI(); runAISimulation(true); };
                 
                 const offsets = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[k];
-                let mini = '<div class="grid grid-cols-7 gap-[1px] w-6 h-6">';
+                let mini = '<div class="grid grid-cols-7 gap-[1px] w-6 h-6 sm:w-8 sm:h-8 shrink-0">';
                 for(let r=-3; r<=3; r++){
                     for(let c=-3; c<=3; c++){
                         const isSet = offsets.some(o => o[0]===r && o[1]===c);
@@ -654,7 +608,7 @@
                 }
                 mini += '</div>';
                 
-                btn.innerHTML = `${mini}<span class="text-[8px] font-bold text-slate-600 truncate w-full text-center">${p.name.split(' ')[0]}</span>`;
+                btn.innerHTML = `${mini}<span class="text-[9px] sm:text-xs font-bold text-slate-700">${p.name}</span>`;
                 pnl.appendChild(btn);
             });
         }
@@ -694,13 +648,13 @@
                 const aiMove = aiRecommendedMoves.find(m => m.index === i);
                 const isAICenter = aiMove !== undefined;
 
-                btn.className = 'w-full h-full rounded-md sm:rounded-lg border-2 transition-all duration-150 flex items-center justify-center relative ';
+                btn.className = 'w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 flex items-center justify-center relative ';
                 btn.innerHTML = '';
 
                 // Layer 1: Base State (Flipped or Empty)
                 if (flipped) {
                     btn.classList.add('bg-emerald-200/50', 'border-emerald-300', 'text-emerald-600');
-                    btn.innerHTML = '<i class="fa-solid fa-check text-xs sm:text-sm"></i>';
+                    btn.innerHTML = '<i class="fa-solid fa-check text-[10px] sm:text-sm"></i>';
                     if (isPreviewTarget) btn.classList.add('opacity-70');
                 } else {
                     btn.classList.add('bg-white', 'border-slate-200');
@@ -712,7 +666,7 @@
                     if (isStagedPreview) {
                         btn.classList.add('bg-amber-300', 'border-amber-500', 'shadow-inner');
                         if (i === stagedIdx) {
-                            btn.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-700 animate-bounce text-xs sm:text-sm"></i>';
+                            btn.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-700 animate-bounce text-[10px] sm:text-sm"></i>';
                         }
                     } else {
                         btn.classList.add('bg-emerald-400', 'border-emerald-500', 'shadow-inner');
@@ -721,15 +675,12 @@
 
                 // Layer 3: AI Highlight Overlay (Persistent)
                 if (isAICenter) {
-                    // Overwrite base border to show AI suggestion
                     btn.classList.remove('border-slate-200', 'border-emerald-300');
-                    
-                    // If it's currently being previewed by user, blend the styling
                     if (isPreviewTarget) {
                         btn.classList.add('border-sky-500', 'ring-2', 'ring-sky-400');
                     } else {
                         btn.classList.add('border-sky-500', 'bg-sky-100', 'ring-2', 'ring-sky-300', 'ring-offset-1', 'z-10');
-                        if(!flipped) btn.innerHTML = '<i class="fa-solid fa-star text-sky-500 animate-pulse text-xs sm:text-sm"></i>';
+                        if(!flipped) btn.innerHTML = '<i class="fa-solid fa-star text-sky-500 animate-pulse text-[10px] sm:text-sm"></i>';
                     }
                 }
             }
@@ -750,7 +701,6 @@
             aiWorker.postMessage({
                 grid: Array.from(grid),
                 activeKey, storageKey,
-                queue: [...queue],
                 iterations: 15000
             });
         }
@@ -801,11 +751,10 @@
             document.getElementById('ai-top-coord').innerText = `${COLS[c]}${r+1}`;
             document.getElementById('ai-top-winrate').innerText = `${(top.winRate * 100).toFixed(1)}%`;
 
-            // Auto-Apply bypasses the double click requirement
             document.getElementById('btn-apply-ai').onclick = () => {
                 if(top.action === 'USE_STORAGE') swapSlots();
                 activeKey = top.patternKey;
-                stagedIdx = top.index; // Set stage to index to trigger confirmation immediately
+                stagedIdx = top.index; 
                 handleClick(top.index);
             };
 
