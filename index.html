@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,12 +26,10 @@
         body {
             font-family: 'Noto Sans', sans-serif;
             background-color: #f4f7f4;
-            /* Prevent overscroll bounce on mobile */
             overscroll-behavior-y: none; 
         }
         .font-header { font-family: 'Comfortaa', sans-serif; }
         
-        /* Custom Scrollbar (Hidden on Mobile, Visible on PC) */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -39,7 +38,6 @@
             ::-webkit-scrollbar { display: none; }
         }
 
-        /* Loading Spinner Animation for AI Worker */
         .spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -187,14 +185,19 @@
                         </div>
                         
                         <!-- Grid Cells -->
-                        <div id="grid-container" class="grid grid-cols-7 grid-rows-7 gap-1 flex-1">
+                        <div id="grid-container" class="grid grid-cols-7 grid-rows-7 gap-1 flex-1 relative">
                             <!-- Injected by JS -->
                         </div>
                     </div>
                 </div>
+                
+                <!-- Double Tap Hint -->
+                <div class="text-center text-[10px] sm:text-xs text-amber-600 font-bold shrink-0">
+                    <i class="fa-solid fa-lightbulb"></i> Tap twice to confirm placement
+                </div>
 
                 <!-- Action Controls (Undo / Reset) -->
-                <div class="flex justify-center gap-4 shrink-0 pb-2">
+                <div class="flex justify-center gap-4 shrink-0 pb-2 mt-2">
                     <button id="btn-undo" onclick="undoMove()" disabled class="px-5 py-2.5 bg-white text-slate-600 font-bold text-sm rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                         <i class="fa-solid fa-clock-rotate-left mr-1"></i> Undo
                     </button>
@@ -414,6 +417,7 @@
         let storageKey = '';
         let queue = [];
         let hoveredIdx = -1;
+        let stagedIdx = -1; // Track first tap for double-tap confirmation
 
         let aiRecommendedMoves = [];
 
@@ -453,6 +457,7 @@
 
         function randomizeQueue() {
             queue = Array.from({length: 6}, () => PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)]);
+            stagedIdx = -1;
             if (!activeKey || autoCycle) activeKey = queue.shift();
             clearAI();
             updateUI();
@@ -461,6 +466,7 @@
 
         function setMode(m) {
             mode = m;
+            stagedIdx = -1;
             document.getElementById('mode-play').className = `px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${m === 'play' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
             document.getElementById('mode-setup').className = `px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${m === 'setup' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
             handleHover(-1);
@@ -470,6 +476,7 @@
 
         function toggleAutoCycle(checked) {
             autoCycle = checked;
+            stagedIdx = -1;
             document.getElementById('manual-palette-panel').style.display = checked ? 'none' : 'flex';
             if(checked && !activeKey && queue.length > 0) activeKey = queue.shift();
             updateUI();
@@ -478,6 +485,7 @@
 
         function swapSlots() {
             saveState();
+            stagedIdx = -1;
             [activeKey, storageKey] = [storageKey, activeKey];
             if (!activeKey && autoCycle) activeKey = queue.shift();
             clearAI();
@@ -500,6 +508,7 @@
             const h = history.pop();
             grid = h.grid; tickets = h.tickets;
             activeKey = h.activeKey; storageKey = h.storageKey; queue = h.queue;
+            stagedIdx = -1;
             document.getElementById('btn-undo').disabled = history.length === 0;
             clearAI();
             updateUI();
@@ -512,11 +521,13 @@
             history = [];
             tickets = 0;
             storageKey = '';
+            stagedIdx = -1;
             document.getElementById('btn-undo').disabled = true;
             randomizeQueue();
         }
 
         function handleClick(idx) {
+            // Setup Mode: Single click to toggle
             if (mode === 'setup') {
                 saveState();
                 grid[idx] = grid[idx] ? 0 : 1;
@@ -526,11 +537,21 @@
                 return;
             }
 
-            // Play Mode
+            // Play Mode: Double click to confirm
             if (!activeKey) return;
+
+            // First Tap: Stage the placement
+            if (stagedIdx !== idx) {
+                stagedIdx = idx;
+                renderBoard(); // Render amber preview and preserve AI highlight
+                return;
+            }
+
+            // Second Tap on same cell: Confirm placement
             saveState();
             applyPatternLocal(activeKey, idx);
             tickets++;
+            stagedIdx = -1; // Reset staged state
             
             if (autoCycle) {
                 activeKey = queue.shift();
@@ -621,7 +642,7 @@
                 const active = (activeKey === k);
                 const btn = document.createElement('button');
                 btn.className = `p-1.5 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${active ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}`;
-                btn.onclick = () => { activeKey = k; clearAI(); updateUI(); runAISimulation(true); };
+                btn.onclick = () => { activeKey = k; stagedIdx = -1; clearAI(); updateUI(); runAISimulation(true); };
                 
                 const offsets = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[k];
                 let mini = '<div class="grid grid-cols-7 gap-[1px] w-6 h-6">';
@@ -646,22 +667,29 @@
         function renderBoard() {
             const cells = gridContainer.children;
             
-            let hoverOffsets = [];
-            if (mode === 'play' && activeKey && hoveredIdx !== -1) {
-                const r = Math.floor(hoveredIdx / 7);
-                const c = hoveredIdx % 7;
-                const o = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[activeKey];
+            let previewOffsets = [];
+            let isStagedPreview = false;
+
+            if (mode === 'play' && activeKey) {
+                let targetIdx = stagedIdx !== -1 ? stagedIdx : hoveredIdx;
                 
-                o.forEach(([dr, dc]) => {
-                    const tr = r + dr, tc = c + dc;
-                    if(tr>=0 && tr<7 && tc>=0 && tc<7) hoverOffsets.push(tr*7+tc);
-                });
+                if (targetIdx !== -1) {
+                    isStagedPreview = (targetIdx === stagedIdx);
+                    const r = Math.floor(targetIdx / 7);
+                    const c = targetIdx % 7;
+                    const o = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[activeKey];
+                    
+                    o.forEach(([dr, dc]) => {
+                        const tr = r + dr, tc = c + dc;
+                        if(tr>=0 && tr<7 && tc>=0 && tc<7) previewOffsets.push(tr*7+tc);
+                    });
+                }
             }
 
             for (let i = 0; i < 49; i++) {
                 const btn = cells[i];
                 const flipped = grid[i] === 1;
-                const isHoverTarget = hoverOffsets.includes(i);
+                const isPreviewTarget = previewOffsets.includes(i);
                 
                 const aiMove = aiRecommendedMoves.find(m => m.index === i);
                 const isAICenter = aiMove !== undefined;
@@ -669,23 +697,40 @@
                 btn.className = 'w-full h-full rounded-md sm:rounded-lg border-2 transition-all duration-150 flex items-center justify-center relative ';
                 btn.innerHTML = '';
 
+                // Layer 1: Base State (Flipped or Empty)
                 if (flipped) {
                     btn.classList.add('bg-emerald-200/50', 'border-emerald-300', 'text-emerald-600');
                     btn.innerHTML = '<i class="fa-solid fa-check text-xs sm:text-sm"></i>';
-                    if (isHoverTarget) btn.classList.add('opacity-70');
+                    if (isPreviewTarget) btn.classList.add('opacity-70');
                 } else {
                     btn.classList.add('bg-white', 'border-slate-200');
                 }
 
-                if (isHoverTarget && !flipped) {
+                // Layer 2: Player Preview (Staged/Hovered)
+                if (isPreviewTarget && !flipped) {
                     btn.classList.remove('bg-white', 'border-slate-200');
-                    btn.classList.add('bg-emerald-400', 'border-emerald-500', 'shadow-inner');
+                    if (isStagedPreview) {
+                        btn.classList.add('bg-amber-300', 'border-amber-500', 'shadow-inner');
+                        if (i === stagedIdx) {
+                            btn.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-700 animate-bounce text-xs sm:text-sm"></i>';
+                        }
+                    } else {
+                        btn.classList.add('bg-emerald-400', 'border-emerald-500', 'shadow-inner');
+                    }
                 }
 
-                if (hoveredIdx === -1 && isAICenter) {
-                    btn.classList.remove('bg-white', 'border-slate-200', 'border-emerald-300');
-                    btn.classList.add('border-sky-500', 'bg-sky-100', 'ring-2', 'ring-sky-300', 'ring-offset-1', 'z-10');
-                    if(!flipped) btn.innerHTML = '<i class="fa-solid fa-star text-sky-500 animate-pulse text-xs sm:text-sm"></i>';
+                // Layer 3: AI Highlight Overlay (Persistent)
+                if (isAICenter) {
+                    // Overwrite base border to show AI suggestion
+                    btn.classList.remove('border-slate-200', 'border-emerald-300');
+                    
+                    // If it's currently being previewed by user, blend the styling
+                    if (isPreviewTarget) {
+                        btn.classList.add('border-sky-500', 'ring-2', 'ring-sky-400');
+                    } else {
+                        btn.classList.add('border-sky-500', 'bg-sky-100', 'ring-2', 'ring-sky-300', 'ring-offset-1', 'z-10');
+                        if(!flipped) btn.innerHTML = '<i class="fa-solid fa-star text-sky-500 animate-pulse text-xs sm:text-sm"></i>';
+                    }
                 }
             }
         }
@@ -756,9 +801,11 @@
             document.getElementById('ai-top-coord').innerText = `${COLS[c]}${r+1}`;
             document.getElementById('ai-top-winrate').innerText = `${(top.winRate * 100).toFixed(1)}%`;
 
+            // Auto-Apply bypasses the double click requirement
             document.getElementById('btn-apply-ai').onclick = () => {
                 if(top.action === 'USE_STORAGE') swapSlots();
                 activeKey = top.patternKey;
+                stagedIdx = top.index; // Set stage to index to trigger confirmation immediately
                 handleClick(top.index);
             };
 
@@ -791,3 +838,6 @@
 </script>
 </body>
 </html>
+
+
+```
