@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -24,18 +24,19 @@
             --accent: #dcfd8b;
         }
         body {
-            font-family: 'Noto Sans', sans-serif;
+            font-family: 'Noto Sans Thai', sans-serif;
             background-color: #f4f7f4;
             overscroll-behavior-y: none; 
         }
         .font-header { font-family: 'Comfortaa', sans-serif; }
         
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         @media (max-width: 1024px) {
-            ::-webkit-scrollbar { display: none; }
+            .hide-scrollbar-on-mobile::-webkit-scrollbar { display: none; }
+            .hide-scrollbar-on-mobile { -ms-overflow-style: none; scrollbar-width: none; }
         }
 
         .spinner {
@@ -47,9 +48,45 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .highlight-storage {
+            animation: pulse-border-storage 1.5s infinite;
+        }
+        @keyframes pulse-border-storage {
+            0% { border-color: #cbd5e1; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+            50% { border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
+            100% { border-color: #cbd5e1; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        .highlight-active {
+            animation: pulse-border-active 1.5s infinite;
+        }
+        @keyframes pulse-border-active {
+            0% { border-color: #d1fae5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+            100% { border-color: #d1fae5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
     </style>
 </head>
 <body class="text-slate-800 lg:h-screen lg:overflow-hidden flex flex-col selection:bg-emerald-200">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Custom Modal for Confirmation -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 border border-slate-100" id="modal-content">
+            <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-xl mb-4 mx-auto">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2 text-center">ยืนยันการล้างกระดาน?</h3>
+            <p class="text-xs text-slate-500 mb-6 text-center">ประวัติการวางและจำนวนตั๋วที่ใช้ทั้งหมดจะถูกลบทิ้ง และไม่สามารถเรียกคืนได้</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all text-xs sm:text-sm">ยกเลิก</button>
+                <button onclick="executeReset()" class="flex-1 py-2.5 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 shadow-md shadow-rose-500/30 transition-all text-xs sm:text-sm">ล้างกระดานเลย</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Top Navigation Bar -->
     <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-2 sm:p-3 shadow-md shrink-0 z-10">
@@ -66,91 +103,92 @@
             <!-- Mode Switcher -->
             <div class="flex gap-1.5 sm:gap-2 bg-black/20 p-1 rounded-xl">
                 <button id="mode-play" onclick="setMode('play')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-[10px] sm:text-xs font-bold transition-all shadow-sm">
-                    <i class="fa-solid fa-gamepad mr-1"></i> Play
+                    <i class="fa-solid fa-gamepad mr-1"></i> โหมดเล่น
                 </button>
                 <button id="mode-setup" onclick="setMode('setup')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-emerald-100 hover:text-white text-[10px] sm:text-xs font-semibold transition-all">
-                    <i class="fa-solid fa-wrench mr-1"></i> Setup
+                    <i class="fa-solid fa-wrench mr-1"></i> จำลองกระดาน
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Workspace -->
-    <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-4 min-h-0 overflow-hidden">
-        <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 overflow-hidden">
+    <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
+        <!-- CSS Grid layout for PC, Flex column for Mobile -->
+        <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 lg:overflow-hidden">
             
             <!-- ======================= -->
-            <!-- PANEL 1: Info & Selection -->
-            <!-- (Mobile: Order 3 / PC: Order 1) -->
+            <!-- PANEL 1: Ticket Stats   -->
+            <!-- (Mobile: Order 3 / PC: Order 1, Row 1) -->
             <!-- ======================= -->
-            <section class="order-3 lg:order-1 lg:col-span-3 flex flex-col gap-3 lg:h-full lg:overflow-y-auto pb-2 lg:pb-0 lg:pr-1">
-                
-                <!-- Ticket Stats -->
-                <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex justify-between items-center shrink-0">
+            <section class="order-3 lg:order-1 lg:col-span-3 lg:col-start-1 lg:row-start-1 shrink-0 pb-2 lg:pb-0 lg:pr-1">
+                <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex justify-between items-center">
                     <div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Tickets Used</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">จำนวนตาที่เล่นไป</span>
                         <span id="ticket-count" class="text-2xl font-header font-bold text-[#4a7c59]">0</span>
                     </div>
                     <div class="bg-amber-50 text-amber-500 w-10 h-10 rounded-full flex items-center justify-center text-lg">
                         <i class="fa-solid fa-ticket"></i>
                     </div>
                 </div>
+            </section>
 
-                <!-- Manual Selection Panel -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-[250px]">
-                    <div class="bg-slate-50 p-2 border-b border-slate-100 shrink-0">
+            <!-- ======================= -->
+            <!-- PANEL 1.5: Manual Selection -->
+            <!-- (Mobile: Order 1 (Top) / PC: Order 4, Col 1, Row 2) -->
+            <!-- ======================= -->
+            <!-- Note: On mobile this sits right above the game board (order-1). On PC, it sits below Ticket Stats in the left column. -->
+            <section class="order-1 lg:order-4 lg:col-span-3 lg:col-start-1 lg:row-start-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pb-4 lg:pr-1 w-full shrink-0 lg:shrink">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden w-full lg:h-full">
+                    <div class="bg-slate-50 p-2 border-b border-slate-100 flex items-center justify-between shrink-0">
                         <h3 class="text-[11px] font-bold text-slate-600 uppercase">
-                            <i class="fa-solid fa-hand-pointer mr-1"></i> Manual Selection
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> เลือกป้ายเอง (Active)
                         </h3>
+                        <span class="text-[9px] text-slate-400 lg:hidden">ปัดซ้าย-ขวา <i class="fa-solid fa-arrows-left-right ml-1"></i></span>
                     </div>
-                    <div class="p-3 flex-1 overflow-y-auto flex flex-col gap-2">
-                        <p class="text-[9px] text-slate-500 font-semibold">Select the pattern you have in your hand.</p>
-                        <div class="grid grid-cols-2 lg:grid-cols-1 gap-1.5" id="pattern-palette">
-                            <!-- Injected by JS -->
-                        </div>
+                    <!-- Horizontal scroll on mobile, Vertical stack on PC -->
+                    <div class="p-2 flex lg:flex-col lg:flex-nowrap gap-2 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden hide-scrollbar-on-mobile snap-x snap-mandatory flex-1" id="pattern-palette">
+                        <!-- Injected by JS -->
                     </div>
                 </div>
             </section>
 
             <!-- ======================= -->
             <!-- PANEL 2: Game Board     -->
-            <!-- (Mobile: Order 1 / PC: Order 2) -->
+            <!-- (Mobile: Order 2 / PC: Order 2, Col 2, Row span 2) -->
             <!-- ======================= -->
-            <!-- Changed gap to gap-2 and overflow-hidden to ensure it fits -->
-            <section class="order-1 lg:order-2 lg:col-span-5 flex flex-col gap-2 h-full overflow-hidden pb-1 lg:pr-1 relative">
+            <section class="order-2 lg:order-2 lg:col-span-5 lg:col-start-4 lg:row-start-1 lg:row-span-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pr-1 relative w-full">
                 
                 <!-- Board Completeness Bar -->
-                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner shrink-0">
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner shrink-0 mt-1">
                     <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-[#4a7c59] h-full transition-all duration-500 w-0"></div>
                 </div>
-                <div class="text-center text-[9px] font-bold text-slate-500 shrink-0" id="progress-text">Progress 0% (0/49)</div>
+                <div class="text-center text-[9px] font-bold text-slate-500 shrink-0 mb-1" id="progress-text">ความคืบหน้า 0% (0/49)</div>
 
                 <!-- Active / Storage Panel -->
-                <!-- Reduced padding to save vertical space -->
-                <div class="flex justify-between items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100 shrink-0">
+                <div class="flex justify-between items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100 shrink-0 relative w-full">
                     <!-- Active -->
-                    <div class="flex-1 flex flex-col items-center p-1.5 bg-emerald-50/50 rounded-lg border border-emerald-100">
-                        <span class="text-[9px] uppercase font-bold text-emerald-600 mb-0.5">Active Slot</span>
+                    <div id="active-container" class="flex-1 flex flex-col items-center p-1.5 bg-emerald-50/50 rounded-lg border border-emerald-100 relative transition-all duration-300">
+                        <span class="text-[9px] uppercase font-bold text-emerald-600 mb-0.5">ในมือปัจจุบัน</span>
                         <div id="active-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                     
                     <!-- Swap Button -->
-                    <button onclick="swapSlots()" class="w-10 h-10 shrink-0 bg-[#dcfd8b] hover:bg-[#cbe67c] active:scale-90 rounded-full flex items-center justify-center text-[#4a7c59] shadow-md transition-all text-base">
+                    <button onclick="swapSlots()" id="swap-btn" class="w-10 h-10 shrink-0 bg-[#dcfd8b] hover:bg-[#cbe67c] active:scale-90 rounded-full flex items-center justify-center text-[#4a7c59] shadow-md transition-all text-base z-10 relative">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
 
                     <!-- Storage -->
-                    <div class="flex-1 flex flex-col items-center p-1.5 bg-slate-50 rounded-lg border border-slate-100">
-                        <span class="text-[9px] uppercase font-bold text-slate-500 mb-0.5">Storage Slot</span>
+                    <div id="storage-container" class="flex-1 flex flex-col items-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 transition-all duration-300">
+                        <span class="text-[9px] uppercase font-bold text-slate-500 mb-0.5" id="storage-label">คลังเก็บ (Storage)</span>
                         <div id="storage-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                 </div>
 
                 <!-- 7x7 Interactive Board -->
-                <!-- Use flex-1 and min-h-0 to make the board container flex dynamically -->
-                <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-slate-100 w-full mx-auto flex flex-col select-none flex-1 min-h-0 justify-center items-center overflow-hidden">
+                <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-slate-100 w-full mx-auto flex flex-col select-none flex-1 lg:min-h-0 justify-center items-center lg:overflow-hidden relative aspect-square lg:aspect-auto">
                     
-                    <div class="w-full max-w-[420px] mx-auto h-full flex flex-col">
+                    <div class="w-full max-w-[420px] mx-auto h-full flex flex-col justify-center">
                         <!-- Header A-G -->
                         <div class="flex w-full mb-0.5 shrink-0">
                             <div class="w-4 sm:w-5 shrink-0"></div>
@@ -159,9 +197,7 @@
                             </div>
                         </div>
 
-                        <!-- Use min-h-0 and flex-1 so the aspect-square scales properly -->
                         <div class="flex w-full flex-1 min-h-0 justify-center items-center">
-                            <!-- Ensure the grid maintains aspect ratio but doesn't exceed container -->
                             <div class="flex w-full max-h-full aspect-square gap-0.5">
                                 <!-- Header 1-7 -->
                                 <div class="grid grid-rows-7 w-4 sm:w-5 shrink-0 text-center text-[9px] sm:text-[10px] font-bold text-slate-400">
@@ -184,19 +220,17 @@
                 </div>
                 
                 <!-- Action Controls & Hint -->
-                <div class="shrink-0 flex flex-col gap-2 mt-1">
-                    <!-- Double Tap Hint -->
+                <div class="shrink-0 flex flex-col gap-2 mt-1 mb-2 lg:mb-0 w-full">
                     <div class="text-center text-[9px] sm:text-[10px] text-amber-600 font-bold w-full">
-                        <i class="fa-solid fa-lightbulb"></i> Tap twice to confirm placement
+                        <i class="fa-solid fa-lightbulb"></i> แตะ 2 ครั้งเพื่อยืนยันการวาง
                     </div>
 
-                    <!-- Undo / Reset -->
                     <div class="flex justify-center gap-3">
                         <button id="btn-undo" onclick="undoMove()" disabled class="px-4 py-2 bg-white text-slate-600 font-bold text-[10px] sm:text-xs rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                            <i class="fa-solid fa-clock-rotate-left mr-1"></i> Undo
+                            <i class="fa-solid fa-clock-rotate-left mr-1"></i> ย้อนกลับ
                         </button>
                         <button onclick="resetBoard()" class="px-4 py-2 bg-rose-50 text-rose-600 font-bold text-[10px] sm:text-xs rounded-lg border border-rose-100 shadow-sm hover:bg-rose-100 transition-all">
-                            <i class="fa-solid fa-trash-can mr-1"></i> Clear Board
+                            <i class="fa-solid fa-trash-can mr-1"></i> ล้างกระดาน
                         </button>
                     </div>
                 </div>
@@ -204,57 +238,61 @@
 
             <!-- ======================= -->
             <!-- PANEL 3: AI Simulator   -->
-            <!-- (Mobile: Order 2 / PC: Order 3) -->
+            <!-- (Mobile: Order 4 / PC: Order 3, Col 3, Row span 2) -->
             <!-- ======================= -->
-            <section class="order-2 lg:order-3 lg:col-span-4 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-1">
-                <div class="bg-sky-50 rounded-2xl p-4 border-2 border-sky-100 flex flex-col h-full shadow-sm min-h-[300px]">
+            <section class="order-4 lg:order-3 lg:col-span-4 lg:col-start-9 lg:row-start-1 lg:row-span-2 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-1">
+                <div class="bg-sky-50 rounded-2xl p-4 border-2 border-sky-100 flex flex-col h-full shadow-sm lg:min-h-[300px]">
                     
                     <div class="flex justify-between items-start mb-3 shrink-0">
                         <div>
                             <h2 class="font-header text-base font-bold text-sky-800 flex items-center gap-1.5">
-                                <i class="fa-solid fa-robot text-sky-500"></i> AI Monte Carlo
+                                <i class="fa-solid fa-robot text-sky-500"></i> AI เสนอแนะ
                             </h2>
-                            <p class="text-[9px] text-sky-600/80 mt-0.5">Analyzing probabilities from 10,000+ simulations</p>
+                            <p class="text-[9px] text-sky-600/80 mt-0.5">จำลองความน่าจะเป็นแบบ Monte Carlo</p>
                         </div>
                     </div>
 
                     <!-- AI Compute Button -->
                     <button id="btn-ai-calc" onclick="runAISimulation()" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group shrink-0">
                         <span id="ai-btn-content" class="flex items-center gap-2">
-                            <i class="fa-solid fa-bolt"></i> Calculate Best Placement
+                            <i class="fa-solid fa-bolt"></i> ประมวลผลหาจุดที่ดีที่สุด
                         </span>
                         <div id="ai-btn-loader" class="absolute inset-0 bg-sky-700 hidden items-center justify-center gap-2">
-                            <div class="spinner"></div> <span>Simulating...</span>
+                            <div class="spinner"></div> <span>กำลังจำลอง...</span>
                         </div>
                     </button>
 
                     <!-- AI Results Output -->
-                    <div id="ai-results" class="mt-3 flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pr-1 hidden">
+                    <div id="ai-results" class="mt-3 flex-1 flex flex-col gap-2 min-h-[200px] lg:min-h-0 overflow-y-auto pr-1 hidden">
                         <!-- Top Choice -->
                         <div class="bg-white p-3 rounded-xl shadow-sm border border-emerald-200 relative overflow-hidden shrink-0">
                             <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-lg">
-                                <i class="fa-solid fa-star text-amber-300"></i> Top Pick
+                                <i class="fa-solid fa-star text-amber-300"></i> ดีที่สุด
                             </div>
-                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">First Step</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1" id="ai-top-title">ก้าวแรก</div>
                             <div id="ai-top-action" class="font-bold text-sm sm:text-base text-slate-800 leading-tight">
                                 <!-- Text -->
                             </div>
                             <div class="mt-1.5 flex justify-between items-end">
-                                <div class="text-[10px] sm:text-xs text-slate-600">Coord: <span id="ai-top-coord" class="font-bold text-emerald-600">--</span></div>
+                                <div class="text-[10px] sm:text-xs text-slate-600">พิกัด: <span id="ai-top-coord" class="font-bold text-emerald-600">--</span></div>
                                 <div class="text-right">
-                                    <div class="text-[9px] text-slate-400">Win Rate</div>
+                                    <div class="text-[9px] text-slate-400">อัตราชนะ (Win Rate)</div>
                                     <div id="ai-top-winrate" class="font-bold text-emerald-500 text-xs sm:text-sm">--%</div>
                                 </div>
                             </div>
+                            <!-- Swap Alert message -->
+                            <div id="ai-swap-alert" class="hidden mt-2 p-1.5 bg-sky-50 text-sky-700 text-[10px] sm:text-xs font-bold rounded-lg border border-sky-200 text-center flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-rotate animate-spin-slow"></i> AI แนะนำให้กดสลับป้าย (Swap) แล้วใช้อันนี้!
+                            </div>
                             <button id="btn-apply-ai" class="mt-2 w-full py-1.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] sm:text-xs font-bold rounded-lg transition-all border border-emerald-200">
-                                Apply Suggestion
+                                วางตามคำแนะนำทันที
                             </button>
                         </div>
 
                         <!-- Alternative Choices List -->
-                        <div class="shrink-0 flex flex-col min-h-0">
-                            <span class="text-[9px] font-bold text-sky-700/70 uppercase px-1 mb-1">Alternatives</span>
-                            <div id="ai-alt-list" class="flex flex-col gap-1.5 overflow-y-auto">
+                        <div class="shrink-0 flex flex-col lg:min-h-0">
+                            <span class="text-[9px] font-bold text-sky-700/70 uppercase px-1 mb-1">ทางเลือกอื่น</span>
+                            <div id="ai-alt-list" class="flex flex-col gap-1.5 lg:overflow-y-auto">
                                 <!-- Injected by JS -->
                             </div>
                         </div>
@@ -263,7 +301,7 @@
                     <!-- AI Idle State -->
                     <div id="ai-idle" class="mt-3 flex-1 flex flex-col items-center justify-center text-sky-700/40 text-center min-h-[100px]">
                         <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
-                        <p class="text-[10px] sm:text-xs font-semibold">Click calculate to start<br>Monte Carlo simulation</p>
+                        <p class="text-[10px] sm:text-xs font-semibold">กดประมวลผลเพื่อเริ่ม<br>จำลอง Monte Carlo</p>
                     </div>
 
                 </div>
@@ -273,6 +311,59 @@
 
     <!-- Scripts: Game Logic & Inline Web Worker -->
     <script>
+        /**
+         * ==========================================
+         * UI HELPERS (Toasts & Modals)
+         * ==========================================
+         */
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-3 sm:px-4 sm:py-3 rounded-xl shadow-lg text-white text-xs sm:text-sm font-bold transition-all duration-300 transform translate-x-full flex items-center gap-2 ${type === 'error' ? 'bg-rose-500 shadow-rose-500/30' : 'bg-emerald-500 shadow-emerald-500/30'}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirm-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function executeReset() {
+            closeModal();
+            grid = new Uint8Array(49);
+            history = [];
+            tickets = 0;
+            storageKey = '';
+            stagedIdx = -1;
+            activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
+            document.getElementById('btn-undo').disabled = true;
+            clearAI();
+            updateUI();
+            runAISimulation(true);
+            showToast('ล้างกระดานและประวัติเรียบร้อยแล้ว', 'success');
+        }
+
         /**
          * ==========================================
          * PART 1: INLINE WEB WORKER (MONTE CARLO AI)
@@ -400,12 +491,12 @@
         let grid = new Uint8Array(49);
         let history = [];
         let tickets = 0;
-        let mode = 'play'; // 'play' | 'setup'
+        let mode = 'play'; 
 
         let activeKey = '';
         let storageKey = '';
         let hoveredIdx = -1;
-        let stagedIdx = -1; // Track first tap for double-tap confirmation
+        let stagedIdx = -1; 
 
         let aiRecommendedMoves = [];
 
@@ -413,10 +504,7 @@
 
         function init() {
             createBoard();
-            
-            // Randomly select starting active key
             activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
-            
             updateUI();
             runAISimulation(true);
 
@@ -484,21 +572,19 @@
         }
 
         function resetBoard() {
-            if(!confirm('Are you sure you want to clear the board and all history?')) return;
-            grid = new Uint8Array(49);
-            history = [];
-            tickets = 0;
-            storageKey = '';
-            stagedIdx = -1;
-            activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
-            document.getElementById('btn-undo').disabled = true;
-            clearAI();
-            updateUI();
-            runAISimulation(true);
+            const modal = document.getElementById('confirm-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
         }
 
         function handleClick(idx) {
-            // Setup Mode: Single click to toggle
             if (mode === 'setup') {
                 saveState();
                 grid[idx] = grid[idx] ? 0 : 1;
@@ -508,23 +594,22 @@
                 return;
             }
 
-            // Play Mode: Double click to confirm
-            if (!activeKey) return;
-
-            // First Tap: Stage the placement
-            if (stagedIdx !== idx) {
-                stagedIdx = idx;
-                renderBoard(); // Render amber preview and preserve AI highlight
+            if (!activeKey) {
+                showToast('ไม่มีป้ายในมือ (Active Slot)', 'error');
                 return;
             }
 
-            // Second Tap on same cell: Confirm placement
+            if (stagedIdx !== idx) {
+                stagedIdx = idx;
+                renderBoard(); 
+                return;
+            }
+
             saveState();
             applyPatternLocal(activeKey, idx);
             tickets++;
-            stagedIdx = -1; // Reset staged state
+            stagedIdx = -1; 
             
-            // Randomly select next pattern
             activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             
             clearAI();
@@ -557,16 +642,15 @@
             renderPalette();
             renderBoard();
             
-            // Progress
             const flipped = grid.reduce((a,b)=>a+b, 0);
             const pct = Math.round((flipped/49)*100);
             document.getElementById('progress-bar').style.width = `${pct}%`;
-            document.getElementById('progress-text').innerText = `Progress ${pct}% (${flipped}/49)`;
+            document.getElementById('progress-text').innerText = `ความคืบหน้า ${pct}% (${flipped}/49)`;
         }
 
         function renderPreview(containerId, key) {
             const el = document.getElementById(containerId);
-            if (!key) { el.innerHTML = '<span class="text-slate-300 text-[8px]">Empty</span>'; return; }
+            if (!key) { el.innerHTML = '<span class="text-slate-300 text-[8px] font-bold">ว่าง</span>'; return; }
             
             const p = PATTERNS[key];
             const offsets = {
@@ -595,11 +679,14 @@
                 const p = PATTERNS[k];
                 const active = (activeKey === k);
                 const btn = document.createElement('button');
-                btn.className = `p-1.5 sm:p-2 rounded-xl border-2 flex lg:flex-row flex-col items-center gap-1 sm:gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
+                
+                // Adjusted for lg layout: flex-col on large screens to stack icon and text vertically
+                btn.className = `p-2 shrink-0 snap-start rounded-xl border-2 flex flex-row lg:flex-col items-center justify-center gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
                 btn.onclick = () => { activeKey = k; stagedIdx = -1; clearAI(); updateUI(); runAISimulation(true); };
                 
                 const offsets = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[k];
-                let mini = '<div class="grid grid-cols-7 gap-[1px] w-6 h-6 sm:w-8 sm:h-8 shrink-0">';
+                
+                let mini = '<div class="grid grid-cols-7 gap-[1px] w-7 h-7 sm:w-8 sm:h-8 shrink-0">';
                 for(let r=-3; r<=3; r++){
                     for(let c=-3; c<=3; c++){
                         const isSet = offsets.some(o => o[0]===r && o[1]===c);
@@ -608,7 +695,7 @@
                 }
                 mini += '</div>';
                 
-                btn.innerHTML = `${mini}<span class="text-[9px] sm:text-xs font-bold text-slate-700">${p.name}</span>`;
+                btn.innerHTML = `${mini}<span class="hidden lg:block text-[10px] font-bold text-slate-700 text-center w-full whitespace-nowrap">${p.name}</span>`;
                 pnl.appendChild(btn);
             });
         }
@@ -651,7 +738,7 @@
                 btn.className = 'w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 flex items-center justify-center relative ';
                 btn.innerHTML = '';
 
-                // Layer 1: Base State (Flipped or Empty)
+                // Layer 1
                 if (flipped) {
                     btn.classList.add('bg-emerald-200/50', 'border-emerald-300', 'text-emerald-600');
                     btn.innerHTML = '<i class="fa-solid fa-check text-[10px] sm:text-sm"></i>';
@@ -660,7 +747,7 @@
                     btn.classList.add('bg-white', 'border-slate-200');
                 }
 
-                // Layer 2: Player Preview (Staged/Hovered)
+                // Layer 2
                 if (isPreviewTarget && !flipped) {
                     btn.classList.remove('bg-white', 'border-slate-200');
                     if (isStagedPreview) {
@@ -673,7 +760,7 @@
                     }
                 }
 
-                // Layer 3: AI Highlight Overlay (Persistent)
+                // Layer 3
                 if (isAICenter) {
                     btn.classList.remove('border-slate-200', 'border-emerald-300');
                     if (isPreviewTarget) {
@@ -689,11 +776,11 @@
         // --- AI Worker Control ---
         function runAISimulation(auto = false) {
             if (!activeKey && !storageKey) {
-                if (!auto) alert('You must have at least 1 pattern in hand.');
+                if (!auto) showToast('คุณต้องมีป้ายในมืออย่างน้อย 1 ชิ้น', 'error');
                 return;
             }
             if (grid.every(v => v === 1)) {
-                if (!auto) alert('The board is already full.');
+                if (!auto) showToast('กระดานเต็มแล้ว!', 'error');
                 return;
             }
 
@@ -717,6 +804,9 @@
                 
                 document.getElementById('ai-idle').style.display = 'none';
                 document.getElementById('ai-results').classList.add('hidden');
+                
+                document.getElementById('storage-container').classList.remove('highlight-storage');
+                document.getElementById('active-container').classList.remove('highlight-active');
             } else {
                 btnLoader.classList.replace('flex', 'hidden');
                 btnContent.classList.remove('opacity-0');
@@ -728,13 +818,15 @@
             aiRecommendedMoves = [];
             document.getElementById('ai-results').classList.add('hidden');
             document.getElementById('ai-idle').style.display = 'flex';
+            document.getElementById('storage-container').classList.remove('highlight-storage');
+            document.getElementById('active-container').classList.remove('highlight-active');
             renderBoard();
         }
 
         function renderAIResults(results) {
             document.getElementById('ai-results').classList.remove('hidden');
             if (!results || results.length === 0 || results[0].immediateGain === 0) {
-                document.getElementById('ai-top-action').innerHTML = '<span class="text-rose-500">No scoring spaces left</span>';
+                document.getElementById('ai-top-action').innerHTML = '<span class="text-rose-500">ไม่มีช่องให้ทำคะแนนแล้ว</span>';
                 return;
             }
 
@@ -745,11 +837,29 @@
             aiRecommendedMoves = [top];
             renderBoard();
 
-            const actionText = top.action === 'USE_ACTIVE' ? 'Use Active' : 'Swap & Use Storage';
+            const isSwap = top.action === 'USE_STORAGE';
+            const actionText = isSwap ? 'ลงจากคลังเก็บ' : 'ลงจากในมือ';
             const patternName = PATTERNS[top.patternKey].name;
+            
             document.getElementById('ai-top-action').innerHTML = `${actionText}: <span class="text-emerald-600">${patternName}</span>`;
             document.getElementById('ai-top-coord').innerText = `${COLS[c]}${r+1}`;
             document.getElementById('ai-top-winrate').innerText = `${(top.winRate * 100).toFixed(1)}%`;
+
+            const storageContainer = document.getElementById('storage-container');
+            const activeContainer = document.getElementById('active-container');
+            const swapAlert = document.getElementById('ai-swap-alert');
+            
+            if (isSwap) {
+                storageContainer.classList.add('highlight-storage');
+                activeContainer.classList.remove('highlight-active');
+                swapAlert.classList.remove('hidden');
+                document.getElementById('ai-top-title').innerText = "แนะนำให้สลับ (Swap)";
+            } else {
+                storageContainer.classList.remove('highlight-storage');
+                activeContainer.classList.add('highlight-active');
+                swapAlert.classList.add('hidden');
+                document.getElementById('ai-top-title').innerText = "ก้าวต่อไปที่ดีที่สุด";
+            }
 
             document.getElementById('btn-apply-ai').onclick = () => {
                 if(top.action === 'USE_STORAGE') swapSlots();
@@ -770,12 +880,12 @@
                             <span class="w-4 h-4 bg-slate-100 text-slate-500 rounded text-[9px] font-bold flex items-center justify-center">${rank+2}</span>
                             <div>
                                 <span class="font-bold text-slate-700">${PATTERNS[res.patternKey].name}</span>
-                                <span class="text-[10px] text-slate-400 block">${res.action === 'USE_STORAGE' ? '(Swap)' : ''} @ ${COLS[c2]}${r2+1}</span>
+                                <span class="text-[10px] text-slate-400 block">${res.action === 'USE_STORAGE' ? '<span class="text-sky-500 font-bold">(สลับ)</span>' : ''} วางที่ ${COLS[c2]}${r2+1}</span>
                             </div>
                         </div>
                         <div class="text-right">
                             <span class="text-emerald-500 font-bold block">${(res.winRate * 100).toFixed(1)}%</span>
-                            <span class="text-[9px] text-slate-400">Gain +${res.immediateGain}</span>
+                            <span class="text-[9px] text-slate-400">เปิด +${res.immediateGain}</span>
                     </div>
                 </div>
             `;
