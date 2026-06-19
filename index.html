@@ -459,8 +459,11 @@
                 img.classList.add('opacity-0');
                 
                 // ถอดรหัส Base64 เฉพาะตอนที่ผู้ใช้กดปุ่มเท่านั้น
-                const decodedUrl = atob(ENCODED_QR_PROXY);
-                img.src = decodedUrl;
+                // โค้ดเดิม
+                // const decodedUrl = atob(ENCODED_QR_PROXY);
+                // img.src = decodedUrl;
+                // โค้ดแก้ชั่วคราว
+                img.src = "https://bubble-tea.phoblaz.workers.dev/qr";
             }
 
             // ถ้ามีเบอร์ Promptpay ให้โชว์กล่องก๊อปปี้
