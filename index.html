@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bingo Simulator & AI Solver</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -66,12 +69,27 @@
             filter: grayscale(0) !important;
             box-shadow: 0 0 8px rgba(52, 211, 153, 0.5) !important;
         }
+
+        /* Classes for disabled support links */
+        .support-link-disabled {
+            filter: grayscale(100%);
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+            border-color: #e2e8f0 !important; 
+        }
+        .support-link-disabled:hover {
+            transform: none !important;
+            background-color: #f8fafc !important;
+        }
     </style>
 </head>
 <body class="text-slate-800 lg:h-screen lg:overflow-hidden flex flex-col selection:bg-emerald-200">
 
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- Custom Modal for Confirmation (Clear Board) -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 border border-slate-100" id="modal-content">
             <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-xl mb-4 mx-auto">
@@ -86,31 +104,74 @@
         </div>
     </div>
 
-    <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-2 sm:p-3 shadow-md shrink-0 z-10">
+    <!-- Support / Donate Modal -->
+    <div id="support-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 border border-slate-100 relative" id="support-content">
+            <button onclick="closeSupportModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-all">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 text-pink-500 rounded-full text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-heart animate-pulse"></i>
+                </div>
+                <h3 class="text-xl font-header font-bold text-slate-800">Support the Dev!</h3>
+                <p class="text-[11px] text-slate-500 mt-2">If this simulator helped you save some tickets, consider supporting the developer! 🙏</p>
+            </div>
+            
+            <div class="flex flex-col gap-3" id="support-links-container">
+                <!-- Links injected by JS -->
+            </div>
+            
+            <div class="mt-4 text-center">
+                <span class="text-[9px] text-slate-400">Powered by Cloudflare Workers 🛡️</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-2 sm:p-3 shadow-md shrink-0 z-10 relative">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 <div class="bg-[#dcfd8b] text-[#4a7c59] w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-lg sm:text-xl shadow-inner">
                     <i class="fa-solid fa-dice"></i>
                 </div>
                 <div>
-                    <h1 class="font-header text-base sm:text-lg font-bold leading-tight">Bingo Solver Pro</h1>
-                    <p class="text-[9px] sm:text-[10px] text-emerald-100/80">Reward-Driven Simulation Engine</p>
+                    <h1 class="font-header text-sm sm:text-lg font-bold leading-tight truncate max-w-[130px] sm:max-w-none">Bingo Solver Pro</h1>
+                    <p class="text-[8px] sm:text-[10px] text-emerald-100/80 truncate hidden sm:block">Reward-Driven Simulation Engine</p>
                 </div>
             </div>
-            <div class="flex gap-1.5 sm:gap-2 bg-black/20 p-1 rounded-xl">
-                <button id="mode-play" onclick="setMode('play')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-[10px] sm:text-xs font-bold transition-all shadow-sm">
-                    <i class="fa-solid fa-gamepad mr-1"></i> Play
-                </button>
-                <button id="mode-setup" onclick="setMode('setup')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-emerald-100 hover:text-white text-[10px] sm:text-xs font-semibold transition-all">
-                    <i class="fa-solid fa-wrench mr-1"></i> Setup
+            <!-- Actions (GitHub, Mode Switcher + Support) -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                
+                <!-- GitHub Link Button -->
+                <a href="https://github.com/Phoblaz/TrickalBingo" target="_blank" class="w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-[10px] sm:text-xs font-bold shadow-md shadow-slate-900/30 transition-transform active:scale-95 flex items-center justify-center gap-1.5" title="View Source on GitHub">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span class="hidden sm:inline">Source</span>
+                </a>
+
+                <div class="flex gap-1 bg-black/20 p-1 rounded-xl">
+                    <button id="mode-play" onclick="setMode('play')" class="px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-[9px] sm:text-xs font-bold transition-all shadow-sm">
+                        <i class="fa-solid fa-gamepad sm:mr-1"></i> <span class="hidden sm:inline">Play</span>
+                    </button>
+                    <button id="mode-setup" onclick="setMode('setup')" class="px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-lg text-emerald-100 hover:text-white text-[9px] sm:text-xs font-semibold transition-all">
+                        <i class="fa-solid fa-wrench sm:mr-1"></i> <span class="hidden sm:inline">Setup</span>
+                    </button>
+                </div>
+                
+                <!-- Support Button -->
+                <button onclick="openSupportModal()" class="ml-1 w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-xl bg-pink-500 hover:bg-pink-400 text-white text-[10px] sm:text-xs font-bold shadow-md shadow-pink-500/30 transition-transform active:scale-95 flex items-center justify-center gap-1.5 group" title="Support the Developer">
+                    <i class="fa-solid fa-heart group-hover:animate-pulse"></i>
+                    <span class="hidden sm:inline">Support</span>
                 </button>
             </div>
         </div>
     </header>
 
+    <!-- Main Workspace -->
     <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
         <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 lg:overflow-hidden">
             
+            <!-- PANEL 1: Ticket Stats -->
             <section class="order-3 lg:order-1 lg:col-span-3 lg:col-start-1 lg:row-start-1 shrink-0 pb-2 lg:pb-0 lg:pr-1">
                 <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex justify-between items-center">
                     <div>
@@ -123,6 +184,7 @@
                 </div>
             </section>
 
+            <!-- PANEL 1.5: Manual Selection -->
             <section class="order-1 lg:order-4 lg:col-span-3 lg:col-start-1 lg:row-start-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pb-4 lg:pr-1 w-full shrink-0 lg:shrink">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden w-full lg:h-full">
                     <div class="bg-slate-50 p-2 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -132,10 +194,12 @@
                         <span class="text-[9px] text-slate-400 lg:hidden">Swipe <i class="fa-solid fa-arrows-left-right ml-1"></i></span>
                     </div>
                     <div class="p-2 flex lg:flex-col lg:flex-nowrap gap-2 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden hide-scrollbar-on-mobile snap-x snap-mandatory flex-1" id="pattern-palette">
-                        </div>
+                        <!-- Injected by JS -->
+                    </div>
                 </div>
             </section>
 
+            <!-- PANEL 2: Game Board -->
             <section class="order-2 lg:order-2 lg:col-span-5 lg:col-start-4 lg:row-start-1 lg:row-span-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pr-1 relative w-full">
                 
                 <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner shrink-0 mt-1">
@@ -143,6 +207,7 @@
                 </div>
                 <div class="text-center text-[9px] font-bold text-slate-500 shrink-0 mb-1" id="progress-text">Progress 0% (0/49)</div>
 
+                <!-- Active / Storage Panel -->
                 <div class="flex justify-between items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100 shrink-0 relative w-full">
                     <div id="active-container" class="flex-1 flex flex-col items-center p-1.5 bg-emerald-50/50 rounded-lg border border-emerald-100 relative transition-all duration-300">
                         <span class="text-[9px] uppercase font-bold text-emerald-600 mb-0.5">Active Slot</span>
@@ -159,13 +224,16 @@
                     </div>
                 </div>
 
+                <!-- 9x9 Visual Grid Container -->
                 <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-slate-100 w-full mx-auto flex flex-col select-none flex-1 lg:min-h-0 justify-center items-center lg:overflow-hidden relative aspect-square lg:aspect-auto">
                     <div class="w-full max-w-[460px] mx-auto h-full flex flex-col justify-center items-center min-h-0">
                         <div id="board-rewards-grid" class="grid grid-cols-9 grid-rows-9 gap-0.5 sm:gap-1 w-full max-h-full aspect-square">
-                            </div>
+                            <!-- Injected by JS -->
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Action Controls -->
                 <div class="shrink-0 flex flex-col gap-2 mt-1 mb-2 lg:mb-0 w-full">
                     <div class="text-center text-[9px] sm:text-[10px] text-amber-600 font-bold w-full">
                         <i class="fa-solid fa-lightbulb"></i> Double tap to confirm placement
@@ -181,6 +249,7 @@
                 </div>
             </section>
 
+            <!-- PANEL 3: AI Simulator -->
             <section class="order-4 lg:order-3 lg:col-span-4 lg:col-start-9 lg:row-start-1 lg:row-span-2 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-1">
                 <div class="bg-sky-50 rounded-2xl p-4 border-2 border-sky-100 flex flex-col h-full shadow-sm lg:min-h-[300px]">
                     <div class="flex justify-between items-start mb-3 shrink-0">
@@ -238,7 +307,124 @@
         </div>
     </main>
 
+    <!-- Scripts: Game Logic & Inline Web Worker -->
     <script>
+        /**
+         * ==========================================
+         * SUPPORT & DONATE MODAL LOGIC
+         * ==========================================
+         */
+        const supportLinks = [
+            {
+                id: 'tipme',
+                name: 'TipMe',
+                desc: 'PromptPay / TrueMoney (Thai)',
+                // 🔴 ใส่ลิงก์ Cloudflare Worker สำหรับ TipMe ตรงนี้ 👇
+                url: 'https://bubble-tea.phoblaz.workers.dev/tipme', 
+                icon: 'fa-solid fa-wallet', // เขียน class เต็มแบบนี้ ไอคอนจะไม่หายแล้วครับ
+                bgColor: 'bg-indigo-500',
+                borderColor: 'border-indigo-100 hover:border-indigo-400',
+                hoverBgColor: 'hover:bg-indigo-50',
+                textColor: 'text-indigo-300 group-hover:text-indigo-500'
+            },
+            {
+                id: 'kofi',
+                name: 'Ko-fi',
+                desc: 'Card / PayPal (Global)',
+                // 🔴 ตัวอย่าง: ถ้าใส่ "#" หรือ "" ปุ่มจะกลายเป็นสีเทาและกดไม่ได้ 👇
+                url: '#', 
+                icon: 'fa-solid fa-mug-hot',
+                bgColor: 'bg-[#29abe0]',
+                borderColor: 'border-sky-100 hover:border-sky-400',
+                hoverBgColor: 'hover:bg-sky-50',
+                textColor: 'text-sky-300 group-hover:text-sky-500'
+            },
+            {
+                id: 'bmac',
+                name: 'Buy Me a Coffee',
+                desc: 'Card / PayPal (Global)',
+                // 🔴 ถ้าพร้อมใช้งานช่องทางนี้ ให้เอา # ออกแล้วใส่ลิงก์ Cloudflare Worker แบบ TipMe 👇
+                url: '#', 
+                icon: 'fa-solid fa-pizza-slice',
+                bgColor: 'bg-[#FFDD00] !text-amber-900',
+                borderColor: 'border-amber-100 hover:border-amber-400',
+                hoverBgColor: 'hover:bg-amber-50',
+                textColor: 'text-amber-300 group-hover:text-amber-500'
+            },
+            {
+                id: 'github',
+                name: 'GitHub Sponsors',
+                desc: 'Monthly or One-time',
+                // 🔴 ถ้าพร้อมใช้งานช่องทางนี้ ให้เอา # ออกแล้วใส่ลิงก์ Cloudflare Worker 👇
+                url: '#', 
+                icon: 'fa-brands fa-github',
+                bgColor: 'bg-slate-800',
+                borderColor: 'border-slate-200 hover:border-slate-800',
+                hoverBgColor: 'hover:bg-slate-50',
+                textColor: 'text-slate-400 group-hover:text-slate-800'
+            }
+        ];
+
+        function renderSupportLinks() {
+            const container = document.getElementById('support-links-container');
+            container.innerHTML = '';
+
+            supportLinks.forEach(link => {
+                const isComingSoon = !link.url || link.url === '#' || link.url === '';
+                
+                const btnClasses = isComingSoon 
+                    ? `w-full flex items-center p-3 bg-slate-50 border-2 border-slate-200 rounded-xl support-link-disabled group` 
+                    : `w-full flex items-center p-3 bg-white border-2 ${link.borderColor} ${link.hoverBgColor} rounded-xl transition-all group`;
+                
+                const iconClasses = isComingSoon
+                    ? `w-10 h-10 bg-slate-400 text-white rounded-lg flex items-center justify-center text-lg mr-3 shadow-sm`
+                    : `w-10 h-10 ${link.bgColor} text-white rounded-lg flex items-center justify-center text-lg mr-3 shadow-sm group-hover:scale-105 transition-transform`;
+
+                const labelDesc = isComingSoon ? 'Coming Soon' : link.desc;
+
+                container.innerHTML += `
+                    <a href="${isComingSoon ? 'javascript:void(0)' : link.url}" target="${isComingSoon ? '' : '_blank'}" class="${btnClasses}">
+                        <div class="${iconClasses}">
+                            <i class="${link.icon}"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h4 class="font-bold text-slate-800 text-sm">${link.name}</h4>
+                            <p class="text-[9px] text-slate-500">${labelDesc}</p>
+                        </div>
+                        <i class="fa-solid ${isComingSoon ? 'fa-lock text-slate-300' : 'fa-chevron-right ' + link.textColor}"></i>
+                    </a>
+                `;
+            });
+        }
+
+        function openSupportModal() {
+            renderSupportLinks();
+            const modal = document.getElementById('support-modal');
+            const content = document.getElementById('support-content');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+        }
+
+        function closeSupportModal() {
+            const modal = document.getElementById('support-modal');
+            const content = document.getElementById('support-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        /**
+         * ==========================================
+         * UI HELPERS (Toasts & Modals)
+         * ==========================================
+         */
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -313,7 +499,6 @@
 
             function getRewardScore(b) {
                 let score = 0;
-                // Rows 0-6
                 for(let r=0; r<7; r++) {
                     if(b[r*7] && b[r*7+1] && b[r*7+2] && b[r*7+3] && b[r*7+4] && b[r*7+5] && b[r*7+6]) {
                         if(r===0 || r===2 || r===4 || r===6) score += 200; 
@@ -321,7 +506,6 @@
                         else score += 100;
                     }
                 }
-                // Cols 0-6
                 for(let c=0; c<7; c++) {
                     if(b[c] && b[c+7] && b[c+14] && b[c+21] && b[c+28] && b[c+35] && b[c+42]) {
                         if(c===0 || c===2 || c===4 || c===6) score += 200; 
@@ -329,7 +513,6 @@
                         else score += 100;
                     }
                 }
-                // Diagonals (TopRight-BottomLeft, TopLeft-BottomRight)
                 if(b[0] && b[8] && b[16] && b[24] && b[32] && b[40] && b[48]) score += 1000;
                 if(b[6] && b[12] && b[18] && b[24] && b[30] && b[36] && b[42]) score += 1000;
                 return score;
@@ -366,12 +549,11 @@
                             for(let j=0; j<49; j++) if(simGrid[j]) currentFlipped++;
                             
                             let simMoves = 1;
-                            let maxSimMoves = 12; // Prevent infinite loops
+                            let maxSimMoves = 12; 
                             let runningRewardScore = getRewardScore(simGrid);
 
                             while (currentFlipped < 49 && simMoves < maxSimMoves) {
                                 let bestRes = { flipped: 0, board: simGrid };
-                                // Greedy-random: try 3 patterns to pick a good local move
                                 for(let tryN = 0; tryN < 3; tryN++) {
                                     let randP = PATTERNS_KEYS[Math.floor(Math.random() * PATTERNS_KEYS.length)];
                                     let randIdx = Math.floor(Math.random() * 49);
@@ -405,11 +587,8 @@
                 }
 
                 evaluations.sort((a, b) => {
-                    // Priority 1: Minimum Moves (Lower is better)
                     if (Math.abs(a.avgMoves - b.avgMoves) > 0.1) return a.avgMoves - b.avgMoves;
-                    // Priority 2: Highest Cumulative Rewards = Got big rewards earlier
                     if (b.avgRewardScore !== a.avgRewardScore) return b.avgRewardScore - a.avgRewardScore;
-                    // Priority 3: Immediate tile gain
                     return b.immediateGain - a.immediateGain;
                 });
 
@@ -422,7 +601,7 @@
         const aiWorker = new Worker(workerUrl);
 
         /**
-         * MAIN THREAD (GAME STATE & UI)
+         * MAIN THREAD
          */
         const COLS = ['A','B','C','D','E','F','G'];
         
@@ -458,7 +637,6 @@
             };
         }
 
-        // Helper to construct Reward Cell HTML
         function getRewardCellHTML(id, type) {
             let icon = '', qty = '';
             if(type === 'LEAF_10') { icon = 'fa-leaf text-emerald-500'; qty = 'x10'; }
@@ -509,7 +687,6 @@
                         container.appendChild(cell); continue;
                     }
                     
-                    // Rewards Layer
                     if (r === 0 && c === 8) { cell.innerHTML = getRewardCellHTML('diag-2', 'LEAF_50'); }
                     else if (r === 8 && c === 8) { cell.innerHTML = getRewardCellHTML('diag-1', 'LEAF_50'); }
                     else if (c === 8 && r >= 1 && r <= 7) { 
@@ -529,8 +706,8 @@
         function setMode(m) {
             mode = m;
             stagedIdx = -1;
-            document.getElementById('mode-play').className = `px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${m === 'play' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
-            document.getElementById('mode-setup').className = `px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${m === 'setup' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
+            document.getElementById('mode-play').className = `px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold transition-all ${m === 'play' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
+            document.getElementById('mode-setup').className = `px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold transition-all ${m === 'setup' ? 'bg-[#dcfd8b] text-[#4a7c59] shadow-sm' : 'text-emerald-100 hover:text-white font-semibold'}`;
             handleHover(-1);
             clearAI();
             renderBoard();
@@ -560,18 +737,6 @@
             clearAI();
             updateUI();
             runAISimulation(true);
-        }
-
-        function resetBoard() {
-            const modal = document.getElementById('confirm-modal');
-            const content = document.getElementById('modal-content');
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                modal.classList.add('opacity-100');
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            });
         }
 
         function handleClick(idx) {
@@ -623,7 +788,6 @@
             });
         }
 
-        // --- Render UI ---
         function updateUI() {
             document.getElementById('ticket-count').innerText = tickets;
             renderPreview('active-preview', activeKey);
@@ -640,26 +804,23 @@
         }
 
         function updateRewardVisuals() {
-            // Check Rows
             for(let r=0; r<7; r++) {
                 let complete = true;
                 for(let c=0; c<7; c++) { if(!grid[r*7+c]) complete = false; }
                 toggleRewardUI(`reward-row-${r}`, complete);
             }
-            // Check Cols
             for(let c=0; c<7; c++) {
                 let complete = true;
                 for(let r=0; r<7; r++) { if(!grid[r*7+c]) complete = false; }
                 toggleRewardUI(`reward-col-${c}`, complete);
             }
-            // Check Diagonals
             let diag1 = true, diag2 = true;
             for(let i=0; i<7; i++) {
                 if(!grid[i*7+i]) diag1 = false;
                 if(!grid[(6-i)*7+i]) diag2 = false;
             }
-            toggleRewardUI('reward-diag-1', diag1); // TL to BR
-            toggleRewardUI('reward-diag-2', diag2); // BL to TR
+            toggleRewardUI('reward-diag-1', diag1); 
+            toggleRewardUI('reward-diag-2', diag2); 
         }
         
         function toggleRewardUI(id, isUnlocked) {
@@ -678,6 +839,7 @@
         function renderPreview(containerId, key) {
             const el = document.getElementById(containerId);
             if (!key) { el.innerHTML = '<span class="text-slate-300 text-[8px] font-bold">Empty</span>'; return; }
+            
             const p = PATTERNS[key];
             const offsets = {
                 CROSS:      [[0,0], [0,1], [0,-1], [1,0], [-1,0]],
@@ -705,9 +867,12 @@
                 const p = PATTERNS[k];
                 const active = (activeKey === k);
                 const btn = document.createElement('button');
-                btn.className = `p-2 shrink-0 snap-start rounded-xl border-2 flex flex-row lg:flex-col items-center justify-center gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
+                
+                btn.className = `p-2 lg:py-1.5 lg:px-3 shrink-0 snap-start rounded-xl border-2 flex flex-row items-center justify-center lg:justify-start gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
                 btn.onclick = () => { activeKey = k; stagedIdx = -1; clearAI(); updateUI(); runAISimulation(true); };
+                
                 const offsets = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[k];
+                
                 let mini = '<div class="grid grid-cols-7 gap-[1px] w-7 h-7 sm:w-8 sm:h-8 shrink-0">';
                 for(let r=-3; r<=3; r++){
                     for(let c=-3; c<=3; c++){
@@ -716,7 +881,8 @@
                     }
                 }
                 mini += '</div>';
-                btn.innerHTML = `${mini}<span class="hidden lg:block text-[10px] font-bold text-slate-700 text-center w-full whitespace-nowrap">${p.name}</span>`;
+                
+                btn.innerHTML = `${mini}<span class="hidden lg:block text-[10px] font-bold text-slate-700 whitespace-nowrap text-left">${p.name}</span>`;
                 pnl.appendChild(btn);
             });
         }
@@ -755,7 +921,6 @@
                 btn.className = 'playable-btn w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 flex items-center justify-center relative ';
                 btn.innerHTML = '';
 
-                // Layer 1
                 if (flipped) {
                     btn.classList.add('bg-emerald-200/50', 'border-emerald-300', 'text-emerald-600');
                     btn.innerHTML = '<i class="fa-solid fa-check text-[10px] sm:text-sm"></i>';
@@ -764,7 +929,6 @@
                     btn.classList.add('bg-white', 'border-slate-200');
                 }
 
-                // Layer 2
                 if (isPreviewTarget && !flipped) {
                     btn.classList.remove('bg-white', 'border-slate-200');
                     if (isStagedPreview) {
@@ -775,7 +939,6 @@
                     }
                 }
 
-                // Layer 3
                 if (isAICenter) {
                     btn.classList.remove('border-slate-200', 'border-emerald-300');
                     if (isPreviewTarget) {
@@ -807,7 +970,7 @@
             const calcBtn = document.getElementById('btn-ai-calc');
             
             if (isLoading) {
-                btnLoader.classList.replace('hidden', 'flex');
+                btnLoader.classList.replace('flex', 'hidden');
                 btnContent.classList.add('opacity-0');
                 calcBtn.disabled = true;
                 document.getElementById('ai-idle').style.display = 'none';
