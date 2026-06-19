@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bingo Simulator & AI Solver</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -48,31 +45,33 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .highlight-storage {
-            animation: pulse-border-storage 1.5s infinite;
-        }
+        .highlight-storage { animation: pulse-border-storage 1.5s infinite; }
         @keyframes pulse-border-storage {
             0% { border-color: #cbd5e1; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
             50% { border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
             100% { border-color: #cbd5e1; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
         }
 
-        .highlight-active {
-            animation: pulse-border-active 1.5s infinite;
-        }
+        .highlight-active { animation: pulse-border-active 1.5s infinite; }
         @keyframes pulse-border-active {
             0% { border-color: #d1fae5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             50% { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
             100% { border-color: #d1fae5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
+        
+        .reward-unlocked {
+            border-color: #34d399 !important;
+            background-color: #ecfdf5 !important;
+            opacity: 1 !important;
+            filter: grayscale(0) !important;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.5) !important;
+        }
     </style>
 </head>
 <body class="text-slate-800 lg:h-screen lg:overflow-hidden flex flex-col selection:bg-emerald-200">
 
-    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Custom Modal for Confirmation -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 border border-slate-100" id="modal-content">
             <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-xl mb-4 mx-auto">
@@ -87,7 +86,6 @@
         </div>
     </div>
 
-    <!-- Top Navigation Bar -->
     <header class="bg-gradient-to-r from-[#4a7c59] to-[#3a6346] text-white p-2 sm:p-3 shadow-md shrink-0 z-10">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -96,10 +94,9 @@
                 </div>
                 <div>
                     <h1 class="font-header text-base sm:text-lg font-bold leading-tight">Bingo Solver Pro</h1>
-                    <p class="text-[9px] sm:text-[10px] text-emerald-100/80">Monte Carlo Simulation Engine</p>
+                    <p class="text-[9px] sm:text-[10px] text-emerald-100/80">Reward-Driven Simulation Engine</p>
                 </div>
             </div>
-            <!-- Mode Switcher -->
             <div class="flex gap-1.5 sm:gap-2 bg-black/20 p-1 rounded-xl">
                 <button id="mode-play" onclick="setMode('play')" class="px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-[#dcfd8b] text-[#4a7c59] text-[10px] sm:text-xs font-bold transition-all shadow-sm">
                     <i class="fa-solid fa-gamepad mr-1"></i> Play
@@ -111,15 +108,9 @@
         </div>
     </header>
 
-    <!-- Main Workspace -->
     <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-4 lg:p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
-        <!-- CSS Grid layout for PC, Flex column for Mobile -->
         <div class="h-full flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 lg:overflow-hidden">
             
-            <!-- ======================= -->
-            <!-- PANEL 1: Ticket Stats   -->
-            <!-- (Mobile: Order 3 / PC: Order 1, Row 1) -->
-            <!-- ======================= -->
             <section class="order-3 lg:order-1 lg:col-span-3 lg:col-start-1 lg:row-start-1 shrink-0 pb-2 lg:pb-0 lg:pr-1">
                 <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex justify-between items-center">
                     <div>
@@ -132,10 +123,6 @@
                 </div>
             </section>
 
-            <!-- ======================= -->
-            <!-- PANEL 1.5: Manual Selection -->
-            <!-- (Mobile: Order 1 (Top) / PC: Order 4, Col 1, Row 2) -->
-            <!-- ======================= -->
             <section class="order-1 lg:order-4 lg:col-span-3 lg:col-start-1 lg:row-start-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pb-4 lg:pr-1 w-full shrink-0 lg:shrink">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden w-full lg:h-full">
                     <div class="bg-slate-50 p-2 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -144,85 +131,45 @@
                         </h3>
                         <span class="text-[9px] text-slate-400 lg:hidden">Swipe <i class="fa-solid fa-arrows-left-right ml-1"></i></span>
                     </div>
-                    <!-- Horizontal scroll on mobile, Vertical stack on PC -->
                     <div class="p-2 flex lg:flex-col lg:flex-nowrap gap-2 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden hide-scrollbar-on-mobile snap-x snap-mandatory flex-1" id="pattern-palette">
-                        <!-- Injected by JS -->
-                    </div>
+                        </div>
                 </div>
             </section>
 
-            <!-- ======================= -->
-            <!-- PANEL 2: Game Board     -->
-            <!-- (Mobile: Order 2 / PC: Order 2, Col 2, Row span 2) -->
-            <!-- ======================= -->
             <section class="order-2 lg:order-2 lg:col-span-5 lg:col-start-4 lg:row-start-1 lg:row-span-2 flex flex-col gap-2 h-auto lg:h-full lg:overflow-hidden pb-1 lg:pr-1 relative w-full">
                 
-                <!-- Board Completeness Bar -->
                 <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner shrink-0 mt-1">
                     <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-[#4a7c59] h-full transition-all duration-500 w-0"></div>
                 </div>
                 <div class="text-center text-[9px] font-bold text-slate-500 shrink-0 mb-1" id="progress-text">Progress 0% (0/49)</div>
 
-                <!-- Active / Storage Panel -->
                 <div class="flex justify-between items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100 shrink-0 relative w-full">
-                    <!-- Active -->
                     <div id="active-container" class="flex-1 flex flex-col items-center p-1.5 bg-emerald-50/50 rounded-lg border border-emerald-100 relative transition-all duration-300">
                         <span class="text-[9px] uppercase font-bold text-emerald-600 mb-0.5">Active Slot</span>
                         <div id="active-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                     
-                    <!-- Swap Button -->
                     <button onclick="swapSlots()" id="swap-btn" class="w-10 h-10 shrink-0 bg-[#dcfd8b] hover:bg-[#cbe67c] active:scale-90 rounded-full flex items-center justify-center text-[#4a7c59] shadow-md transition-all text-base z-10 relative">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
 
-                    <!-- Storage -->
                     <div id="storage-container" class="flex-1 flex flex-col items-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 transition-all duration-300">
                         <span class="text-[9px] uppercase font-bold text-slate-500 mb-0.5" id="storage-label">Storage Slot</span>
                         <div id="storage-preview" class="w-10 h-10 bg-white rounded-md shadow-sm flex items-center justify-center border border-slate-100"></div>
                     </div>
                 </div>
 
-                <!-- 7x7 Interactive Board -->
                 <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-slate-100 w-full mx-auto flex flex-col select-none flex-1 lg:min-h-0 justify-center items-center lg:overflow-hidden relative aspect-square lg:aspect-auto">
-                    
-                    <div class="w-full max-w-[420px] mx-auto h-full flex flex-col justify-center">
-                        <!-- Header A-G -->
-                        <div class="flex w-full mb-0.5 shrink-0">
-                            <div class="w-4 sm:w-5 shrink-0"></div>
-                            <div class="grid grid-cols-7 flex-1 text-center text-[9px] sm:text-[10px] font-bold text-slate-400">
-                                <div>A</div><div>B</div><div>C</div><div>D</div><div>E</div><div>F</div><div>G</div>
+                    <div class="w-full max-w-[460px] mx-auto h-full flex flex-col justify-center items-center min-h-0">
+                        <div id="board-rewards-grid" class="grid grid-cols-9 grid-rows-9 gap-0.5 sm:gap-1 w-full max-h-full aspect-square">
                             </div>
-                        </div>
-
-                        <div class="flex w-full flex-1 min-h-0 justify-center items-center">
-                            <div class="flex w-full max-h-full aspect-square gap-0.5">
-                                <!-- Header 1-7 -->
-                                <div class="grid grid-rows-7 w-4 sm:w-5 shrink-0 text-center text-[9px] sm:text-[10px] font-bold text-slate-400">
-                                    <div class="flex items-center justify-center">1</div>
-                                    <div class="flex items-center justify-center">2</div>
-                                    <div class="flex items-center justify-center">3</div>
-                                    <div class="flex items-center justify-center">4</div>
-                                    <div class="flex items-center justify-center">5</div>
-                                    <div class="flex items-center justify-center">6</div>
-                                    <div class="flex items-center justify-center">7</div>
-                                </div>
-                                
-                                <!-- Grid Cells -->
-                                <div id="grid-container" class="grid grid-cols-7 grid-rows-7 gap-0.5 sm:gap-1 flex-1 h-full">
-                                    <!-- Injected by JS -->
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
-                <!-- Action Controls & Hint -->
                 <div class="shrink-0 flex flex-col gap-2 mt-1 mb-2 lg:mb-0 w-full">
                     <div class="text-center text-[9px] sm:text-[10px] text-amber-600 font-bold w-full">
                         <i class="fa-solid fa-lightbulb"></i> Double tap to confirm placement
                     </div>
-
                     <div class="flex justify-center gap-3">
                         <button id="btn-undo" onclick="undoMove()" disabled class="px-4 py-2 bg-white text-slate-600 font-bold text-[10px] sm:text-xs rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                             <i class="fa-solid fa-clock-rotate-left mr-1"></i> Undo
@@ -234,23 +181,17 @@
                 </div>
             </section>
 
-            <!-- ======================= -->
-            <!-- PANEL 3: AI Simulator   -->
-            <!-- (Mobile: Order 4 / PC: Order 3, Col 3, Row span 2) -->
-            <!-- ======================= -->
             <section class="order-4 lg:order-3 lg:col-span-4 lg:col-start-9 lg:row-start-1 lg:row-span-2 flex flex-col lg:h-full lg:overflow-y-auto pb-4 lg:pr-1">
                 <div class="bg-sky-50 rounded-2xl p-4 border-2 border-sky-100 flex flex-col h-full shadow-sm lg:min-h-[300px]">
-                    
                     <div class="flex justify-between items-start mb-3 shrink-0">
                         <div>
                             <h2 class="font-header text-base font-bold text-sky-800 flex items-center gap-1.5">
                                 <i class="fa-solid fa-robot text-sky-500"></i> AI Suggestion
                             </h2>
-                            <p class="text-[9px] text-sky-600/80 mt-0.5">Monte Carlo probability analysis</p>
+                            <p class="text-[9px] text-sky-600/80 mt-0.5">Optimizing for fast clears & max rewards</p>
                         </div>
                     </div>
 
-                    <!-- AI Compute Button -->
                     <button id="btn-ai-calc" onclick="runAISimulation()" class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group shrink-0">
                         <span id="ai-btn-content" class="flex items-center gap-2">
                             <i class="fa-solid fa-bolt"></i> Calculate Best Placement
@@ -260,25 +201,20 @@
                         </div>
                     </button>
 
-                    <!-- AI Results Output -->
                     <div id="ai-results" class="mt-3 flex-1 flex flex-col gap-2 min-h-[200px] lg:min-h-0 overflow-y-auto pr-1 hidden">
-                        <!-- Top Choice -->
                         <div class="bg-white p-3 rounded-xl shadow-sm border border-emerald-200 relative overflow-hidden shrink-0">
                             <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-lg">
                                 <i class="fa-solid fa-star text-amber-300"></i> Best Move
                             </div>
                             <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1" id="ai-top-title">Next Step</div>
-                            <div id="ai-top-action" class="font-bold text-sm sm:text-base text-slate-800 leading-tight">
-                                <!-- Text -->
-                            </div>
+                            <div id="ai-top-action" class="font-bold text-sm sm:text-base text-slate-800 leading-tight"></div>
                             <div class="mt-1.5 flex justify-between items-end">
                                 <div class="text-[10px] sm:text-xs text-slate-600">Coord: <span id="ai-top-coord" class="font-bold text-emerald-600">--</span></div>
                                 <div class="text-right">
-                                    <div class="text-[9px] text-slate-400">Win Rate</div>
-                                    <div id="ai-top-winrate" class="font-bold text-emerald-500 text-xs sm:text-sm">--%</div>
+                                    <div class="text-[9px] text-slate-400">Est. Moves (to win)</div>
+                                    <div id="ai-top-winrate" class="font-bold text-emerald-500 text-xs sm:text-sm">--</div>
                                 </div>
                             </div>
-                            <!-- Swap Alert message -->
                             <div id="ai-swap-alert" class="hidden mt-2 p-1.5 bg-sky-50 text-sky-700 text-[10px] sm:text-xs font-bold rounded-lg border border-sky-200 text-center flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-rotate animate-spin-slow"></i> AI suggests swapping to use this!
                             </div>
@@ -287,48 +223,31 @@
                             </button>
                         </div>
 
-                        <!-- Alternative Choices List -->
                         <div class="shrink-0 flex flex-col lg:min-h-0">
                             <span class="text-[9px] font-bold text-sky-700/70 uppercase px-1 mb-1">Alternatives</span>
-                            <div id="ai-alt-list" class="flex flex-col gap-1.5 lg:overflow-y-auto">
-                                <!-- Injected by JS -->
-                            </div>
+                            <div id="ai-alt-list" class="flex flex-col gap-1.5 lg:overflow-y-auto"></div>
                         </div>
                     </div>
                     
-                    <!-- AI Idle State -->
                     <div id="ai-idle" class="mt-3 flex-1 flex flex-col items-center justify-center text-sky-700/40 text-center min-h-[100px]">
                         <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
                         <p class="text-[10px] sm:text-xs font-semibold">Click calculate to start<br>Monte Carlo simulation</p>
                     </div>
-
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Scripts: Game Logic & Inline Web Worker -->
     <script>
-        /**
-         * ==========================================
-         * UI HELPERS (Toasts & Modals)
-         * ==========================================
-         */
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `p-3 sm:px-4 sm:py-3 rounded-xl shadow-lg text-white text-xs sm:text-sm font-bold transition-all duration-300 transform translate-x-full flex items-center gap-2 ${type === 'error' ? 'bg-rose-500 shadow-rose-500/30' : 'bg-emerald-500 shadow-emerald-500/30'}`;
             toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span>${message}</span>`;
-            
             container.appendChild(toast);
-            
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-x-full');
-            });
-
+            requestAnimationFrame(() => toast.classList.remove('translate-x-full'));
             setTimeout(() => {
-                toast.classList.add('translate-x-full');
-                toast.classList.add('opacity-0');
+                toast.classList.add('translate-x-full', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
@@ -336,15 +255,11 @@
         function closeModal() {
             const modal = document.getElementById('confirm-modal');
             const content = document.getElementById('modal-content');
-            
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
             modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         function executeReset() {
@@ -363,9 +278,7 @@
         }
 
         /**
-         * ==========================================
-         * PART 1: INLINE WEB WORKER (MONTE CARLO AI)
-         * ==========================================
+         * AI Worker Logic with Reward Scoring & Min-Moves priority
          */
         const workerLogic = `
             const PATTERNS_DATA = {
@@ -398,6 +311,30 @@
                 return { board: newBoard, flipped };
             }
 
+            function getRewardScore(b) {
+                let score = 0;
+                // Rows 0-6
+                for(let r=0; r<7; r++) {
+                    if(b[r*7] && b[r*7+1] && b[r*7+2] && b[r*7+3] && b[r*7+4] && b[r*7+5] && b[r*7+6]) {
+                        if(r===0 || r===2 || r===4 || r===6) score += 200; 
+                        else if(r===1 || r===5) score += 10; 
+                        else score += 100;
+                    }
+                }
+                // Cols 0-6
+                for(let c=0; c<7; c++) {
+                    if(b[c] && b[c+7] && b[c+14] && b[c+21] && b[c+28] && b[c+35] && b[c+42]) {
+                        if(c===0 || c===2 || c===4 || c===6) score += 200; 
+                        else if(c===1 || c===5) score += 10; 
+                        else score += 100;
+                    }
+                }
+                // Diagonals (TopRight-BottomLeft, TopLeft-BottomRight)
+                if(b[0] && b[8] && b[16] && b[24] && b[32] && b[40] && b[48]) score += 1000;
+                if(b[6] && b[12] && b[18] && b[24] && b[30] && b[36] && b[42]) score += 1000;
+                return score;
+            }
+
             self.onmessage = function(e) {
                 const { grid, activeKey, storageKey, iterations } = e.data;
                 const baseGrid = new Uint8Array(grid);
@@ -417,32 +354,42 @@
                 for (const opt of moveOptions) {
                     for (let i = 0; i < 49; i++) {
                         const firstMove = applyPattern(baseGrid, opt.key, i);
-                        
                         if (firstMove.flipped === 0) continue;
 
                         let totalWins = 0;
-                        let totalFlippedScore = 0;
+                        let totalMovesToWin = 0;
+                        let totalCumulativeRewards = 0;
 
                         for (let s = 0; s < simsPerMove; s++) {
                             let simGrid = new Uint8Array(firstMove.board);
                             let currentFlipped = 0;
                             for(let j=0; j<49; j++) if(simGrid[j]) currentFlipped++;
                             
-                            let simMoves = 0;
-                            const maxSimMoves = 8;
+                            let simMoves = 1;
+                            let maxSimMoves = 12; // Prevent infinite loops
+                            let runningRewardScore = getRewardScore(simGrid);
 
                             while (currentFlipped < 49 && simMoves < maxSimMoves) {
-                                let nextPattern = PATTERNS_KEYS[Math.floor(Math.random() * PATTERNS_KEYS.length)];
-                                
-                                const randIdx = Math.floor(Math.random() * 49);
-                                const res = applyPattern(simGrid, nextPattern, randIdx);
-                                simGrid = res.board;
-                                currentFlipped += res.flipped;
+                                let bestRes = { flipped: 0, board: simGrid };
+                                // Greedy-random: try 3 patterns to pick a good local move
+                                for(let tryN = 0; tryN < 3; tryN++) {
+                                    let randP = PATTERNS_KEYS[Math.floor(Math.random() * PATTERNS_KEYS.length)];
+                                    let randIdx = Math.floor(Math.random() * 49);
+                                    let res = applyPattern(simGrid, randP, randIdx);
+                                    if(res.flipped > bestRes.flipped) bestRes = res;
+                                }
+
+                                if (bestRes.flipped > 0) {
+                                    simGrid = bestRes.board;
+                                    currentFlipped += bestRes.flipped;
+                                }
+                                runningRewardScore += getRewardScore(simGrid);
                                 simMoves++;
                             }
 
                             if (currentFlipped === 49) totalWins++;
-                            totalFlippedScore += currentFlipped;
+                            totalMovesToWin += simMoves;
+                            totalCumulativeRewards += runningRewardScore;
                         }
 
                         evaluations.push({
@@ -451,14 +398,18 @@
                             action: opt.action,
                             immediateGain: firstMove.flipped,
                             winRate: totalWins / simsPerMove,
-                            avgFlipped: totalFlippedScore / simsPerMove
+                            avgMoves: totalMovesToWin / simsPerMove,
+                            avgRewardScore: totalCumulativeRewards / simsPerMove
                         });
                     }
                 }
 
                 evaluations.sort((a, b) => {
-                    if (b.winRate !== a.winRate) return b.winRate - a.winRate;
-                    if (b.avgFlipped !== a.avgFlipped) return b.avgFlipped - a.avgFlipped;
+                    // Priority 1: Minimum Moves (Lower is better)
+                    if (Math.abs(a.avgMoves - b.avgMoves) > 0.1) return a.avgMoves - b.avgMoves;
+                    // Priority 2: Highest Cumulative Rewards = Got big rewards earlier
+                    if (b.avgRewardScore !== a.avgRewardScore) return b.avgRewardScore - a.avgRewardScore;
+                    // Priority 3: Immediate tile gain
                     return b.immediateGain - a.immediateGain;
                 });
 
@@ -471,9 +422,7 @@
         const aiWorker = new Worker(workerUrl);
 
         /**
-         * ==========================================
-         * PART 2: MAIN THREAD (GAME STATE & UI)
-         * ==========================================
+         * MAIN THREAD (GAME STATE & UI)
          */
         const COLS = ['A','B','C','D','E','F','G'];
         
@@ -490,18 +439,14 @@
         let history = [];
         let tickets = 0;
         let mode = 'play'; 
-
         let activeKey = '';
         let storageKey = '';
         let hoveredIdx = -1;
         let stagedIdx = -1; 
-
         let aiRecommendedMoves = [];
 
-        const gridContainer = document.getElementById('grid-container');
-
         function init() {
-            createBoard();
+            createVisualBoard();
             activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             updateUI();
             runAISimulation(true);
@@ -513,19 +458,71 @@
             };
         }
 
-        // --- Core Logic ---
-        function createBoard() {
-            gridContainer.innerHTML = '';
-            for (let i = 0; i < 49; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'w-full h-full rounded sm:rounded-md border-2 transition-all duration-200 flex items-center justify-center relative';
-                btn.dataset.idx = i;
-                
-                btn.onmouseenter = () => handleHover(i);
-                btn.onmouseleave = () => handleHover(-1);
-                btn.onpointerdown = (e) => { e.preventDefault(); handleClick(i); };
+        // Helper to construct Reward Cell HTML
+        function getRewardCellHTML(id, type) {
+            let icon = '', qty = '';
+            if(type === 'LEAF_10') { icon = 'fa-leaf text-emerald-500'; qty = 'x10'; }
+            if(type === 'LEAF_50') { icon = 'fa-leaf text-emerald-500'; qty = 'x50'; }
+            if(type === 'STAR_10') { icon = 'fa-star text-pink-400'; qty = 'x10'; }
+            if(type === 'CERT_5') { icon = 'fa-file-invoice text-sky-400'; qty = 'x5'; }
+            
+            return `
+                <div id="reward-${id}" class="w-full h-full rounded sm:rounded-md border border-slate-200 bg-slate-100 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 opacity-60 grayscale">
+                    <i class="fa-solid ${icon} text-[10px] sm:text-xs"></i>
+                    <span class="text-[7px] sm:text-[8px] font-bold text-slate-600 leading-none mt-0.5">${qty}</span>
+                    <div class="absolute inset-0 bg-white/40 flex items-center justify-center backdrop-blur-[1px] transition-opacity duration-300" id="lock-${id}">
+                        <i class="fa-solid fa-lock text-slate-500 text-[8px] sm:text-[10px]"></i>
+                    </div>
+                </div>
+            `;
+        }
 
-                gridContainer.appendChild(btn);
+        function createVisualBoard() {
+            const container = document.getElementById('board-rewards-grid');
+            container.innerHTML = '';
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = "flex items-center justify-center w-full h-full aspect-square relative";
+                    
+                    if (r === 0 && c === 0) { container.appendChild(cell); continue; }
+                    
+                    if (r === 0 && c >= 1 && c <= 7) {
+                        cell.innerHTML = `<span class="text-[9px] sm:text-[10px] font-bold text-slate-400">${COLS[c-1]}</span>`;
+                        container.appendChild(cell); continue;
+                    }
+                    if (c === 0 && r >= 1 && r <= 7) {
+                        cell.innerHTML = `<span class="text-[9px] sm:text-[10px] font-bold text-slate-400">${r}</span>`;
+                        container.appendChild(cell); continue;
+                    }
+                    
+                    if (r >= 1 && r <= 7 && c >= 1 && c <= 7) {
+                        const idx = (r-1) * 7 + (c-1);
+                        const btn = document.createElement('button');
+                        btn.className = 'playable-btn w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 absolute inset-0';
+                        btn.dataset.idx = idx;
+                        btn.onmouseenter = () => handleHover(idx);
+                        btn.onmouseleave = () => handleHover(-1);
+                        btn.onpointerdown = (e) => { e.preventDefault(); handleClick(idx); };
+                        cell.appendChild(btn);
+                        container.appendChild(cell); continue;
+                    }
+                    
+                    // Rewards Layer
+                    if (r === 0 && c === 8) { cell.innerHTML = getRewardCellHTML('diag-2', 'LEAF_50'); }
+                    else if (r === 8 && c === 8) { cell.innerHTML = getRewardCellHTML('diag-1', 'LEAF_50'); }
+                    else if (c === 8 && r >= 1 && r <= 7) { 
+                        const types = ['LEAF_10', 'STAR_10', 'LEAF_10', 'CERT_5', 'LEAF_10', 'STAR_10', 'LEAF_10'];
+                        cell.innerHTML = getRewardCellHTML(`row-${r-1}`, types[r-1]); 
+                    }
+                    else if (r === 8 && c >= 1 && c <= 7) {
+                        const types = ['LEAF_10', 'STAR_10', 'LEAF_10', 'CERT_5', 'LEAF_10', 'STAR_10', 'LEAF_10'];
+                        cell.innerHTML = getRewardCellHTML(`col-${c-1}`, types[c-1]);
+                    } 
+                    
+                    container.appendChild(cell);
+                }
             }
         }
 
@@ -549,11 +546,7 @@
         }
 
         function saveState() {
-            history.push({
-                grid: new Uint8Array(grid),
-                tickets,
-                activeKey, storageKey
-            });
+            history.push({ grid: new Uint8Array(grid), tickets, activeKey, storageKey });
             document.getElementById('btn-undo').disabled = false;
         }
 
@@ -573,7 +566,6 @@
             const modal = document.getElementById('confirm-modal');
             const content = document.getElementById('modal-content');
             modal.classList.remove('hidden');
-            
             requestAnimationFrame(() => {
                 modal.classList.remove('opacity-0');
                 modal.classList.add('opacity-100');
@@ -607,7 +599,6 @@
             applyPatternLocal(activeKey, idx);
             tickets++;
             stagedIdx = -1; 
-            
             activeKey = PATTERN_KEYS[Math.floor(Math.random() * PATTERN_KEYS.length)];
             
             clearAI();
@@ -644,12 +635,49 @@
             const pct = Math.round((flipped/49)*100);
             document.getElementById('progress-bar').style.width = `${pct}%`;
             document.getElementById('progress-text').innerText = `Progress ${pct}% (${flipped}/49)`;
+            
+            updateRewardVisuals();
+        }
+
+        function updateRewardVisuals() {
+            // Check Rows
+            for(let r=0; r<7; r++) {
+                let complete = true;
+                for(let c=0; c<7; c++) { if(!grid[r*7+c]) complete = false; }
+                toggleRewardUI(`reward-row-${r}`, complete);
+            }
+            // Check Cols
+            for(let c=0; c<7; c++) {
+                let complete = true;
+                for(let r=0; r<7; r++) { if(!grid[r*7+c]) complete = false; }
+                toggleRewardUI(`reward-col-${c}`, complete);
+            }
+            // Check Diagonals
+            let diag1 = true, diag2 = true;
+            for(let i=0; i<7; i++) {
+                if(!grid[i*7+i]) diag1 = false;
+                if(!grid[(6-i)*7+i]) diag2 = false;
+            }
+            toggleRewardUI('reward-diag-1', diag1); // TL to BR
+            toggleRewardUI('reward-diag-2', diag2); // BL to TR
+        }
+        
+        function toggleRewardUI(id, isUnlocked) {
+            const el = document.getElementById(id);
+            const lock = document.getElementById(`lock-${id.replace('reward-', '')}`);
+            if(!el || !lock) return;
+            if(isUnlocked) {
+                el.classList.add('reward-unlocked');
+                lock.classList.add('opacity-0');
+            } else {
+                el.classList.remove('reward-unlocked');
+                lock.classList.remove('opacity-0');
+            }
         }
 
         function renderPreview(containerId, key) {
             const el = document.getElementById(containerId);
             if (!key) { el.innerHTML = '<span class="text-slate-300 text-[8px] font-bold">Empty</span>'; return; }
-            
             const p = PATTERNS[key];
             const offsets = {
                 CROSS:      [[0,0], [0,1], [0,-1], [1,0], [-1,0]],
@@ -677,12 +705,9 @@
                 const p = PATTERNS[k];
                 const active = (activeKey === k);
                 const btn = document.createElement('button');
-                
                 btn.className = `p-2 shrink-0 snap-start rounded-xl border-2 flex flex-row lg:flex-col items-center justify-center gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
                 btn.onclick = () => { activeKey = k; stagedIdx = -1; clearAI(); updateUI(); runAISimulation(true); };
-                
                 const offsets = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[k];
-                
                 let mini = '<div class="grid grid-cols-7 gap-[1px] w-7 h-7 sm:w-8 sm:h-8 shrink-0">';
                 for(let r=-3; r<=3; r++){
                     for(let c=-3; c<=3; c++){
@@ -691,7 +716,6 @@
                     }
                 }
                 mini += '</div>';
-                
                 btn.innerHTML = `${mini}<span class="hidden lg:block text-[10px] font-bold text-slate-700 text-center w-full whitespace-nowrap">${p.name}</span>`;
                 pnl.appendChild(btn);
             });
@@ -703,20 +727,17 @@
         }
 
         function renderBoard() {
-            const cells = gridContainer.children;
-            
+            const cells = document.querySelectorAll('.playable-btn');
             let previewOffsets = [];
             let isStagedPreview = false;
 
             if (mode === 'play' && activeKey) {
                 let targetIdx = stagedIdx !== -1 ? stagedIdx : hoveredIdx;
-                
                 if (targetIdx !== -1) {
                     isStagedPreview = (targetIdx === stagedIdx);
                     const r = Math.floor(targetIdx / 7);
                     const c = targetIdx % 7;
                     const o = { CROSS: [[0,0],[0,1],[0,-1],[1,0],[-1,0]], X_SHAPE: [[0,0],[1,1],[1,-1],[-1,1],[-1,-1]], HORIZ_LINE: [[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3]], VERT_LINE: [[-3,0],[-2,0],[-1,0],[0,0],[1,0],[2,0],[3,0]], BLOCK_3X3: [[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]] }[activeKey];
-                    
                     o.forEach(([dr, dc]) => {
                         const tr = r + dr, tc = c + dc;
                         if(tr>=0 && tr<7 && tc>=0 && tc<7) previewOffsets.push(tr*7+tc);
@@ -724,15 +745,14 @@
                 }
             }
 
-            for (let i = 0; i < 49; i++) {
-                const btn = cells[i];
+            cells.forEach(btn => {
+                const i = parseInt(btn.dataset.idx);
                 const flipped = grid[i] === 1;
                 const isPreviewTarget = previewOffsets.includes(i);
-                
                 const aiMove = aiRecommendedMoves.find(m => m.index === i);
                 const isAICenter = aiMove !== undefined;
 
-                btn.className = 'w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 flex items-center justify-center relative ';
+                btn.className = 'playable-btn w-full h-full rounded sm:rounded-md border-2 transition-all duration-150 flex items-center justify-center relative ';
                 btn.innerHTML = '';
 
                 // Layer 1
@@ -749,9 +769,7 @@
                     btn.classList.remove('bg-white', 'border-slate-200');
                     if (isStagedPreview) {
                         btn.classList.add('bg-amber-300', 'border-amber-500', 'shadow-inner');
-                        if (i === stagedIdx) {
-                            btn.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-700 animate-bounce text-[10px] sm:text-sm"></i>';
-                        }
+                        if (i === stagedIdx) btn.innerHTML = '<i class="fa-solid fa-hand-pointer text-amber-700 animate-bounce text-[10px] sm:text-sm"></i>';
                     } else {
                         btn.classList.add('bg-emerald-400', 'border-emerald-500', 'shadow-inner');
                     }
@@ -767,10 +785,9 @@
                         if(!flipped) btn.innerHTML = '<i class="fa-solid fa-star text-sky-500 animate-pulse text-[10px] sm:text-sm"></i>';
                     }
                 }
-            }
+            });
         }
 
-        // --- AI Worker Control ---
         function runAISimulation(auto = false) {
             if (!activeKey && !storageKey) {
                 if (!auto) showToast('You must have at least 1 pattern in hand.', 'error');
@@ -780,13 +797,8 @@
                 if (!auto) showToast('The board is full!', 'error');
                 return;
             }
-
             toggleAILoading(true);
-            aiWorker.postMessage({
-                grid: Array.from(grid),
-                activeKey, storageKey,
-                iterations: 15000
-            });
+            aiWorker.postMessage({ grid: Array.from(grid), activeKey, storageKey, iterations: 15000 });
         }
 
         function toggleAILoading(isLoading) {
@@ -798,10 +810,8 @@
                 btnLoader.classList.replace('hidden', 'flex');
                 btnContent.classList.add('opacity-0');
                 calcBtn.disabled = true;
-                
                 document.getElementById('ai-idle').style.display = 'none';
                 document.getElementById('ai-results').classList.add('hidden');
-                
                 document.getElementById('storage-container').classList.remove('highlight-storage');
                 document.getElementById('active-container').classList.remove('highlight-active');
             } else {
@@ -830,7 +840,6 @@
             const top = results[0];
             const r = Math.floor(top.index / 7);
             const c = top.index % 7;
-            
             aiRecommendedMoves = [top];
             renderBoard();
 
@@ -840,7 +849,7 @@
             
             document.getElementById('ai-top-action').innerHTML = `${actionText}: <span class="text-emerald-600">${patternName}</span>`;
             document.getElementById('ai-top-coord').innerText = `${COLS[c]}${r+1}`;
-            document.getElementById('ai-top-winrate').innerText = `${(top.winRate * 100).toFixed(1)}%`;
+            document.getElementById('ai-top-winrate').innerText = `~${top.avgMoves.toFixed(1)}`;
 
             const storageContainer = document.getElementById('storage-container');
             const activeContainer = document.getElementById('active-container');
@@ -881,7 +890,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <span class="text-emerald-500 font-bold block">${(res.winRate * 100).toFixed(1)}%</span>
+                            <span class="text-emerald-500 font-bold block">~${res.avgMoves.toFixed(1)} steps</span>
                             <span class="text-[9px] text-slate-400">Gain +${res.immediateGain}</span>
                     </div>
                 </div>
